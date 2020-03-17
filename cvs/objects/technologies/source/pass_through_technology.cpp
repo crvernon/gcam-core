@@ -155,7 +155,7 @@ double PassThroughTechnology::getFixedOutput( const string& aRegionName,
     // Retrieve the fixed output from the pass-through sector which will store this
     // information in a unsolved trial market.
     const string fixedDemandActivityName = mPassThroughSectorName + "-fixed-output";
-    const_cast<PassThroughTechnology*>( this )->mPassThroughFixedOutput = scenario->getMarketplace()->getPrice( fixedDemandActivityName, mPassThroughMarketName, aPeriod );
+    const_cast<PassThroughTechnology*>( this )->mPassThroughFixedOutput = scenario->getMarketplace()->getPrice( fixedDemandActivityName, aRegionName, aPeriod );
     return mPassThroughFixedOutput;
 }
 
@@ -177,6 +177,9 @@ double PassThroughTechnology::getCalibrationOutput( const bool aHasRequiredInput
 bool PassThroughTechnology::XMLDerivedClassParse( const string& aNodeName, const DOMNode* aNode ) {
     // no additional parameters are parsed by this technology
     return false;
+}
+
+void PassThroughTechnology::toInputXMLDerived( ostream& aOut, Tabs* aTabs ) const {
 }
 
 //! write object to xml output stream

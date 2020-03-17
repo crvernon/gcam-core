@@ -94,6 +94,9 @@ bool CO2Emissions::XMLDerivedClassParse( const string& aNodeName, const DOMNode*
     return false;
 }
 
+void CO2Emissions::toInputXMLDerived( ostream& aOut, Tabs* aTabs ) const {
+}
+
 void CO2Emissions::toDebugXMLDerived( const int aPeriod, ostream& aOut, Tabs* aTabs ) const {
 }
 

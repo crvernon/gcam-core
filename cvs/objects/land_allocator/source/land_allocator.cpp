@@ -44,7 +44,6 @@
 #include "land_allocator/include/land_allocator.h"
 #include "containers/include/scenario.h"
 #include "containers/include/iinfo.h"
-#include "containers/include/info_factory.h"
 #include "util/base/include/model_time.h"
 #include "ccarbon_model/include/carbon_model_utils.h"
 #include "util/base/include/configuration.h"
@@ -103,9 +102,6 @@ bool LandAllocator::XMLDerivedClassParse( const string& aNodeName, const DOMNode
     else if( aNodeName == "soilTimeScale" ){
         mSoilTimeScale = XMLHelper<int>::getValue( aCurr );
     }
-    else if( aNodeName == "negative-emiss-market" ){
-        mNegEmissMarketName = XMLHelper<string>::getValue( aCurr );
-    }
     else {
         return false;
     }
@@ -115,6 +111,17 @@ bool LandAllocator::XMLDerivedClassParse( const string& aNodeName, const DOMNode
 void LandAllocator::toDebugXML( const int aPeriod, std::ostream& aOut, Tabs* aTabs ) const {
     // Call the node toDebugXML
     ALandAllocatorItem::toDebugXML( aPeriod, aOut, aTabs );  
+}
+
+void LandAllocator::toInputXML( std::ostream& aOut, Tabs* aTabs ) const {
+    // Call the node toInputXML
+    LandNode::toInputXML( aOut, aTabs );
+}
+
+void LandAllocator::toInputXMLDerived( ostream& aOut, Tabs* aTabs ) const {
+    XMLWriteVector( mLandAllocation, "landAllocation", aOut, aTabs, scenario->getModeltime() );
+    XMLWriteVector( mCarbonPriceIncreaseRate, "carbonPriceIncreaseRate", aOut, aTabs, scenario->getModeltime() );
+    XMLWriteElement( mSoilTimeScale, "soilTimeScale", aOut, aTabs );
 }
 
 void LandAllocator::initCalc( const string& aRegionName, const int aPeriod )
@@ -140,19 +147,10 @@ void LandAllocator::initCalc( const string& aRegionName, const int aPeriod )
 }
 
 void LandAllocator::completeInit( const string& aRegionName, 
-                                  const IInfo* aRegionInfo )
+                                      const IInfo* aRegionInfo )
 {
-    // create a land-info from the region info so we can pass the
-    // negative emissions market name
-    IInfo* landInfo = InfoFactory::constructInfo( aRegionInfo, mName );
-    landInfo->setString( "negative-emiss-market", mNegEmissMarketName );
-
-
     // Call generic node method (since LandAllocator is just a specialized node)
-    LandNode::completeInit( aRegionName, landInfo );
-
-    // clean up landInfo as we are done with it
-    delete landInfo;
+    LandNode::completeInit( aRegionName, aRegionInfo );
 
     // Ensure that soil time scale is positive
     if ( mSoilTimeScale < 0 ) {
@@ -185,7 +183,7 @@ void LandAllocator::checkLandArea( const string& aRegionName, const int aPeriod 
     // If the difference between the total and the sum of the leafs
     // is too large, print an error message and exit. 
     double fractionDiff = excessLand / mLandAllocation[ aPeriod ];
-    if ( abs( fractionDiff ) > 0.001 ) {
+    if ( abs( fractionDiff ) > 0.0001 ) {
         ILogger& mainLog = ILogger::getLogger( "main_log" );
         mainLog.setLevel( ILogger::ERROR );
         mainLog << "The sum of land areas in region " << aRegionName 

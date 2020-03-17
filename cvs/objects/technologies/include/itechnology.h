@@ -77,7 +77,6 @@ class TranTechnology;
 class AgProductionTechnology;
 class PassThroughTechnology;
 class UnmanagedLandTechnology;
-class ResourceReserveTechnology;
 class EmptyTechnology;
 
 /*!
@@ -115,7 +114,21 @@ public:
     virtual int getYear() const = 0;
 
     virtual bool XMLParse( const xercesc::DOMNode* tempnode ) = 0;
+    virtual void toInputXML( std::ostream& out, Tabs* tabs ) const = 0;
     virtual void toDebugXML( const int period, std::ostream& out, Tabs* tabs ) const = 0;
+
+    /*!
+     * \brief Write any data that should go into the output XML that is necessary
+     *        for restarts.
+     * \details Most data written to the output XML is to replicate the input data
+     *          set however that file is also used as a restart file thus additional
+     *          data may be required to be able to fully restart the state of the
+     *          model.  Any such data should be written here to ensure they get
+     *          written out which may not be the case when using global technologies.
+     * \param aOut The output stream to write data into.
+     * \param aTabs The tabs object keeping track of indentation formatting.
+     */
+    virtual void toInputXMLForRestart( std::ostream& aOut, Tabs* aTabs ) const = 0;
     
     virtual const std::string& getXMLName() const = 0;
     
@@ -165,6 +178,9 @@ public:
 
     virtual bool hasCalibratedValue( const int aPeriod ) const = 0;
 
+    virtual const std::map<std::string,double> getEmissions( const std::string& aGoodName,
+                                                             const int aPeriod ) const = 0;
+
     virtual const std::string& getName() const = 0;
 
     virtual void setShareWeight( double shareWeightValue ) = 0;
@@ -188,6 +204,8 @@ public:
     virtual const AGHG* getGHGPointer( const std::string& aGHGName ) const = 0;
 
     virtual const std::vector<std::string> getGHGNames() const = 0;
+ 
+    virtual double getEmissionsByGas( const std::string& aGasName, const int aPeriod ) const = 0;
 
     virtual double getFixedOutput( const std::string& aRegionName,
                                    const std::string& aSectorName,
@@ -206,6 +224,8 @@ public:
     virtual void accept( IVisitor* aVisitor, const int aPeriod ) const = 0;
     virtual void acceptDerived( IVisitor* aVisitor, const int aPeriod ) const = 0;
 
+    virtual const std::map<std::string, double> getFuelMap( const int aPeriod ) const = 0;
+
     virtual bool isAvailable( const int aPeriod ) const = 0;
     
     virtual bool isOperating( const int aPeriod ) const = 0;
@@ -213,8 +233,6 @@ public:
     virtual double calcFuelPrefElasticity( const int aPeriod ) const = 0;
     
     virtual void doInterpolations( const Technology* aPrevTech, const Technology* aNextTech ) = 0;
-    
-    virtual void initTechVintageVector() { }
 
     protected:
 
@@ -229,7 +247,7 @@ public:
         DEFINE_SUBCLASS_FAMILY( ITechnology, Technology, DefaultTechnology, IntermittentTechnology,
                                 WindTechnology, SolarTechnology, NukeFuelTechnology, TranTechnology,
                                 AgProductionTechnology, PassThroughTechnology, UnmanagedLandTechnology,
-                                ResourceReserveTechnology, EmptyTechnology )
+                                EmptyTechnology )
     )
 };
 

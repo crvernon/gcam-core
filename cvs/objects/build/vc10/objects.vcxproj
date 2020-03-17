@@ -54,7 +54,7 @@
     <ProjectName>objects-main</ProjectName>
     <ProjectGuid>{C6E84727-E04B-48EC-B119-EE4A2C0DB34B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -72,7 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - LAPACK|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -190,7 +190,7 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release - LAPACK|Itanium'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release - TBB|Itanium'">false</LinkIncremental>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">gcam</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Objects-Main</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release - LAPACK|x64'">Objects-Main</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release - TBB|x64'">Objects-Main</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Objects-Main</TargetName>
@@ -370,7 +370,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\..\..\..\libs\xercesc\include;..\..\..\..\libs\boost-lib;..\..\..\..\libs\java\include;..\..\..\..\libs\java\include\win32;..\..;..\..\climate\source\hector\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\libs\xercesc\include;..\..\..\..\libs\boost-lib;..\..\..\..\libs\java\include;..\..;..\..\climate\source\hector\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;BOOST_DATE_TIME_NO_LIB;FUSION_MAX_VECTOR_SIZE=30;BOOST_MATH_TR1_NO_LIB;NDEBUG;_WINDOWS;_AFXDLL;JARS_LIB#"../libs/basex/BaseX.jar\x3B../libs/jars/*";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -536,7 +536,6 @@
     <ClCompile Include="..\..\climate\source\hector_model.cpp" />
     <ClCompile Include="..\..\climate\source\MAGICC_array.cpp" />
     <ClCompile Include="..\..\climate\source\MAGICC_IO_helpers.cpp" />
-    <ClCompile Include="..\..\climate\source\no_climate_model.cpp" />
     <ClCompile Include="..\..\climate\source\ObjECTS_MAGICC.cpp" />
     <ClCompile Include="..\..\climate\source\ObjECTS_MAGICC_others.cpp" />
     <ClCompile Include="..\..\consumers\source\gcam_consumer.cpp" />
@@ -550,7 +549,9 @@
     <ClCompile Include="..\..\containers\source\land_allocator_activity.cpp" />
     <ClCompile Include="..\..\containers\source\mac_generator_scenario_runner.cpp" />
     <ClCompile Include="..\..\containers\source\market_dependency_finder.cpp" />
+    <ClCompile Include="..\..\containers\source\merge_runner.cpp" />
     <ClCompile Include="..\..\containers\source\national_account.cpp" />
+    <ClCompile Include="..\..\containers\source\output_meta_data.cpp" />
     <ClCompile Include="..\..\containers\source\region.cpp" />
     <ClCompile Include="..\..\containers\source\region_cge.cpp" />
     <ClCompile Include="..\..\containers\source\region_minicam.cpp" />
@@ -618,9 +619,9 @@
     <ClCompile Include="..\..\policy\source\linked_ghg_policy.cpp" />
     <ClCompile Include="..\..\resources\source\accumulated_grade.cpp" />
     <ClCompile Include="..\..\resources\source\accumulated_post_grade.cpp" />
+    <ClCompile Include="..\..\resources\source\depleting_fixed_resource.cpp" />
     <ClCompile Include="..\..\resources\source\grade.cpp" />
     <ClCompile Include="..\..\resources\source\renewable_subresource.cpp" />
-    <ClCompile Include="..\..\resources\source\reserve_subresource.cpp" />
     <ClCompile Include="..\..\resources\source\resource.cpp" />
     <ClCompile Include="..\..\resources\source\smooth_renewable_subresource.cpp" />
     <ClCompile Include="..\..\resources\source\subresource.cpp" />
@@ -636,7 +637,6 @@
     <ClCompile Include="..\..\sectors\source\final_demand_sector.cpp" />
     <ClCompile Include="..\..\sectors\source\more_sector_info.cpp" />
     <ClCompile Include="..\..\sectors\source\negative_emissions_final_demand.cpp" />
-    <ClCompile Include="..\..\sectors\source\nesting_subsector.cpp" />
     <ClCompile Include="..\..\sectors\source\pass_through_sector.cpp" />
     <ClCompile Include="..\..\sectors\source\production_sector.cpp" />
     <ClCompile Include="..\..\sectors\source\sector.cpp" />
@@ -711,7 +711,6 @@
     <ClCompile Include="..\..\technologies\source\production_technology.cpp" />
     <ClCompile Include="..\..\technologies\source\profit_shutdown_decider.cpp" />
     <ClCompile Include="..\..\technologies\source\residue_biomass_output.cpp" />
-    <ClCompile Include="..\..\technologies\source\resource_reserve_technology.cpp" />
     <ClCompile Include="..\..\technologies\source\res_secondary_output.cpp" />
     <ClCompile Include="..\..\technologies\source\retired_production_state.cpp" />
     <ClCompile Include="..\..\technologies\source\secondary_output.cpp" />
@@ -737,15 +736,14 @@
     <ClCompile Include="..\..\util\base\source\configuration.cpp" />
     <ClCompile Include="..\..\util\base\source\fixed_interpolation_function.cpp" />
     <ClCompile Include="..\..\util\base\source\gcam_fusion.cpp" />
-    <ClCompile Include="..\..\util\base\source\initialize_tech_vector_helper.cpp" />
     <ClCompile Include="..\..\util\base\source\input_finder.cpp" />
     <ClCompile Include="..\..\util\base\source\interpolation_function_factory.cpp" />
     <ClCompile Include="..\..\util\base\source\interpolation_rule.cpp" />
     <ClCompile Include="..\..\util\base\source\linear_interpolation_function.cpp" />
     <ClCompile Include="..\..\util\base\source\manage_state_variables.cpp" />
     <ClCompile Include="..\..\util\base\source\model_time.cpp" />
-    <ClCompile Include="..\..\util\base\source\supply_demand_curve_saver.cpp" />
     <ClCompile Include="..\..\util\base\source\s_curve_interpolation_function.cpp" />
+    <ClCompile Include="..\..\util\base\source\summary.cpp" />
     <ClCompile Include="..\..\util\base\source\supply_demand_curve.cpp" />
     <ClCompile Include="..\..\util\base\source\timer.cpp" />
     <ClCompile Include="..\..\util\base\source\util.cpp" />
@@ -753,6 +751,7 @@
     <ClCompile Include="..\..\util\logger\source\logger_factory.cpp" />
     <ClCompile Include="..\..\util\logger\source\plain_text_logger.cpp" />
     <ClCompile Include="..\..\util\logger\source\xml_logger.cpp" />
+    <ClCompile Include="..\..\util\database\source\output_helper.cpp" />
     <ClCompile Include="..\..\util\curves\source\curve.cpp" />
     <ClCompile Include="..\..\util\curves\source\data_point.cpp" />
     <ClCompile Include="..\..\util\curves\source\explicit_point_set.cpp" />
@@ -778,9 +777,17 @@
     <ClCompile Include="..\..\investment\source\set_share_weight_visitor.cpp" />
     <ClCompile Include="..\..\investment\source\simple_expected_profit_calculator.cpp" />
     <ClCompile Include="..\..\reporting\source\batch_csv_outputter.cpp" />
+    <ClCompile Include="..\..\reporting\source\demand_components_table.cpp" />
     <ClCompile Include="..\..\reporting\source\energy_balance_table.cpp" />
+    <ClCompile Include="..\..\reporting\source\govt_results.cpp" />
     <ClCompile Include="..\..\reporting\source\graph_printer.cpp" />
+    <ClCompile Include="..\..\reporting\source\indirect_emissions_calculator.cpp" />
+    <ClCompile Include="..\..\reporting\source\input_output_table.cpp" />
     <ClCompile Include="..\..\reporting\source\land_allocator_printer.cpp" />
+    <ClCompile Include="..\..\reporting\source\sector_report.cpp" />
+    <ClCompile Include="..\..\reporting\source\sector_results.cpp" />
+    <ClCompile Include="..\..\reporting\source\sgm_gen_table.cpp" />
+    <ClCompile Include="..\..\reporting\source\social_accounting_matrix.cpp" />
     <ClCompile Include="..\..\reporting\source\storage_table.cpp" />
     <ClCompile Include="..\..\reporting\source\xml_db_outputter.cpp" />
     <ClCompile Include="..\..\climate\source\magicc_model.cpp" />
@@ -843,7 +850,6 @@
     <ClInclude Include="..\..\ccarbon_model\include\no_emiss_carbon_calc.h" />
     <ClInclude Include="..\..\climate\include\hector_model.hpp" />
     <ClInclude Include="..\..\climate\include\MAGICC_array.h" />
-    <ClInclude Include="..\..\climate\include\no_climate_model.h" />
     <ClInclude Include="..\..\climate\include\ObjECTS_MAGICC.h" />
     <ClInclude Include="..\..\consumers\include\gcam_consumer.h" />
     <ClInclude Include="..\..\containers\include\batch_runner.h" />
@@ -861,7 +867,9 @@
     <ClInclude Include="..\..\containers\include\land_allocator_activity.h" />
     <ClInclude Include="..\..\containers\include\mac_generator_scenario_runner.h" />
     <ClInclude Include="..\..\containers\include\market_dependency_finder.h" />
+    <ClInclude Include="..\..\containers\include\merge_runner.h" />
     <ClInclude Include="..\..\containers\include\national_account.h" />
+    <ClInclude Include="..\..\containers\include\output_meta_data.h" />
     <ClInclude Include="..\..\containers\include\region.h" />
     <ClInclude Include="..\..\containers\include\region_cge.h" />
     <ClInclude Include="..\..\containers\include\region_minicam.h" />
@@ -943,9 +951,9 @@
     <ClInclude Include="..\..\resources\include\accumulated_grade.h" />
     <ClInclude Include="..\..\resources\include\accumulated_post_grade.h" />
     <ClInclude Include="..\..\resources\include\aresource.h" />
+    <ClInclude Include="..\..\resources\include\depleting_fixed_resource.h" />
     <ClInclude Include="..\..\resources\include\grade.h" />
     <ClInclude Include="..\..\resources\include\renewable_subresource.h" />
-    <ClInclude Include="..\..\resources\include\reserve_subresource.h" />
     <ClInclude Include="..\..\resources\include\resource.h" />
     <ClInclude Include="..\..\resources\include\smooth_renewable_subresource.h" />
     <ClInclude Include="..\..\resources\include\subresource.h" />
@@ -963,7 +971,6 @@
     <ClInclude Include="..\..\sectors\include\ibackup_calculator.h" />
     <ClInclude Include="..\..\sectors\include\more_sector_info.h" />
     <ClInclude Include="..\..\sectors\include\negative_emissions_final_demand.h" />
-    <ClInclude Include="..\..\sectors\include\nesting_subsector.h" />
     <ClInclude Include="..\..\sectors\include\pass_through_sector.h" />
     <ClInclude Include="..\..\sectors\include\production_sector.h" />
     <ClInclude Include="..\..\sectors\include\sector.h" />
@@ -1058,7 +1065,6 @@
     <ClInclude Include="..\..\technologies\include\production_technology.h" />
     <ClInclude Include="..\..\technologies\include\profit_shutdown_decider.h" />
     <ClInclude Include="..\..\technologies\include\residue_biomass_output.h" />
-    <ClInclude Include="..\..\technologies\include\resource_reserve_technology.h" />
     <ClInclude Include="..\..\technologies\include\res_secondary_output.h" />
     <ClInclude Include="..\..\technologies\include\retired_production_state.h" />
     <ClInclude Include="..\..\technologies\include\secondary_output.h" />
@@ -1095,11 +1101,11 @@
     <ClInclude Include="..\..\util\base\include\hash_map.h" />
     <ClInclude Include="..\..\util\base\include\iinterpolation_function.h" />
     <ClInclude Include="..\..\util\base\include\inamed.h" />
-    <ClInclude Include="..\..\util\base\include\initialize_tech_vector_helper.hpp" />
     <ClInclude Include="..\..\util\base\include\input_finder.h" />
     <ClInclude Include="..\..\util\base\include\interpolation_function_factory.h" />
     <ClInclude Include="..\..\util\base\include\interpolation_rule.h" />
     <ClInclude Include="..\..\util\base\include\iparsable.h" />
+    <ClInclude Include="..\..\util\base\include\iround_trippable.h" />
     <ClInclude Include="..\..\util\base\include\istandard_component.h" />
     <ClInclude Include="..\..\util\base\include\ivisitable.h" />
     <ClInclude Include="..\..\util\base\include\ivisitor.h" />
@@ -1108,9 +1114,9 @@
     <ClInclude Include="..\..\util\base\include\manage_state_variables.hpp" />
     <ClInclude Include="..\..\util\base\include\model_time.h" />
     <ClInclude Include="..\..\util\base\include\object_meta_info.h" />
-    <ClInclude Include="..\..\util\base\include\supply_demand_curve_saver.h" />
     <ClInclude Include="..\..\util\base\include\s_curve_interpolation_function.h" />
     <ClInclude Include="..\..\util\base\include\string_hash.h" />
+    <ClInclude Include="..\..\util\base\include\summary.h" />
     <ClInclude Include="..\..\util\base\include\supply_demand_curve.h" />
     <ClInclude Include="..\..\util\base\include\time_vector.h" />
     <ClInclude Include="..\..\util\base\include\timer.h" />
@@ -1139,8 +1145,16 @@
     <ClInclude Include="..\..\consumers\include\invest_consumer.h" />
     <ClInclude Include="..\..\consumers\include\trade_consumer.h" />
     <ClInclude Include="..\..\reporting\include\batch_csv_outputter.h" />
+    <ClInclude Include="..\..\reporting\include\demand_components_table.h" />
     <ClInclude Include="..\..\reporting\include\energy_balance_table.h" />
+    <ClInclude Include="..\..\reporting\include\govt_results.h" />
     <ClInclude Include="..\..\reporting\include\graph_printer.h" />
+    <ClInclude Include="..\..\reporting\include\indirect_emissions_calculator.h" />
+    <ClInclude Include="..\..\reporting\include\input_output_table.h" />
+    <ClInclude Include="..\..\reporting\include\sector_report.h" />
+    <ClInclude Include="..\..\reporting\include\sector_results.h" />
+    <ClInclude Include="..\..\reporting\include\sgm_gen_table.h" />
+    <ClInclude Include="..\..\reporting\include\social_accounting_matrix.h" />
     <ClInclude Include="..\..\reporting\include\storage_table.h" />
     <ClInclude Include="..\..\reporting\include\xml_db_outputter.h" />
     <ClInclude Include="..\..\functions\include\ademand_function.h" />

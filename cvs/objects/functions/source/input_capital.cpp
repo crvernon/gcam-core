@@ -166,6 +166,17 @@ void InputCapital::XMLParse( const xercesc::DOMNode* node ) {
     }
 }
 
+void InputCapital::toInputXML( ostream& aOut,
+                               Tabs* aTabs ) const
+{
+    XMLWriteOpeningTag( getXMLNameStatic(), aOut, aTabs, mName );
+    XMLWriteElement( mCapitalOvernight, "capital-overnight", aOut, aTabs );
+    XMLWriteElement( mLifetimeCapital, "lifetime-capital", aOut, aTabs );
+    XMLWriteElement( mFixedChargeRate, "fixed-charge-rate", aOut, aTabs );
+    XMLWriteElementCheckDefault( mTechChange, "tech-change", aOut, aTabs, Value( 0 ) );
+    XMLWriteClosingTag( getXMLNameStatic(), aOut, aTabs );
+}
+
 void InputCapital::toDebugXML( const int aPeriod,
                                ostream& aOut,
                                Tabs* aTabs ) const
@@ -202,7 +213,7 @@ void InputCapital::completeInit( const string& aRegionName,
     // levelized capital cost.
     // These costs may be adjusted by the Technology, for instance for capture
     // penalties.
-    fill( mAdjustedCosts.begin(), mAdjustedCosts.end(), mLevelizedCapitalCost );
+    mAdjustedCosts.assign( mAdjustedCosts.size(), mLevelizedCapitalCost );
 }
 
 /** Calculate the levelizd capital cost.

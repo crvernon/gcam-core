@@ -64,8 +64,6 @@ class LinkedMarket: public Market {
 public:
     LinkedMarket( Market* aLinkedMarket, const MarketContainer* aContainer );
     virtual IMarketType::Type getType() const;
-
-    virtual void resetLinkedMarket( Market* aLinkedMarket );
     
     virtual void initPrice();
     virtual void setPrice( const double aPrice );

@@ -70,6 +70,7 @@ class Tabs;
  */
 class LandUseHistory : public IVisitable,
                        public IParsable,
+                       public IRoundTrippable,
                        private boost::noncopyable
 {
     friend class XMLDBOutputter;
@@ -90,6 +91,10 @@ public:
     void toDebugXML( const int aPeriod,
                      std::ostream& aOut,
                      Tabs* aTabs ) const;
+    
+    // IRoundTrippable
+    virtual void toInputXML( std::ostream& aOut,
+                             Tabs* aTabs ) const;
     
     // IVisitableMethod
 	virtual void accept( IVisitor* aVisitor,

@@ -93,9 +93,9 @@ const string& InputSubsidy::getXMLReportingName() const{
 }
 
 //! Constructor
-InputSubsidy::InputSubsidy()
+InputSubsidy::InputSubsidy():
+mAdjustedCoefficients( Value( 1.0 ) )
 {
-    TechVectorParseHelper<Value>::setDefaultValue( Value( 1.0 ), mAdjustedCoefficients );
 }
 
 /*!
@@ -170,6 +170,16 @@ void InputSubsidy::XMLParse( const xercesc::DOMNode* node ) {
                     << getXMLNameStatic() << "." << endl;
         }
     }
+}
+
+void InputSubsidy::toInputXML( ostream& aOut,
+                               Tabs* aTabs ) const
+{
+    XMLWriteOpeningTag( getXMLNameStatic(), aOut, aTabs, mName );
+    if( !mKeywordMap.empty() ) {
+        XMLWriteElementWithAttributes( "", "keyword", aOut, aTabs, mKeywordMap );
+    }
+    XMLWriteClosingTag( getXMLNameStatic(), aOut, aTabs );
 }
 
 void InputSubsidy::toDebugXML( const int aPeriod,

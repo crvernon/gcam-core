@@ -69,6 +69,7 @@
 
 #include "resources/include/resource.h"
 #include "resources/include/unlimited_resource.h"
+#include "resources/include/depleting_fixed_resource.h"
 
 #include "containers/include/iinfo.h"
 
@@ -173,11 +174,20 @@ void Region::XMLParse( const DOMNode* node ){
         else if( nodeName == Resource::getXMLNameStatic() ){
             parseContainerNode( curr, mResources, new Resource() );
         }
+        else if( nodeName == DepletableResource::getXMLNameStatic() ){
+            parseContainerNode( curr, mResources, new DepletableResource() );
+        }
+        else if( nodeName == FixedResource::getXMLNameStatic() ){
+            parseContainerNode( curr, mResources, new FixedResource() );
+        }
         else if( nodeName == RenewableResource::getXMLNameStatic() ){
             parseContainerNode( curr, mResources, new RenewableResource() );
         }
         else if( nodeName == UnlimitedResource::getXMLNameStatic() ){
             parseContainerNode( curr, mResources, new UnlimitedResource );
+        }
+        else if( nodeName == DepletingFixedResource::getXMLNameStatic() ) {
+            parseContainerNode( curr, mResources, new DepletingFixedResource() );
         }
         else if( XMLDerivedClassParse(nodeName, curr) ){
             // Do nothing but avoid printing the error.
@@ -188,6 +198,48 @@ void Region::XMLParse( const DOMNode* node ){
             mainLog << "Unrecognized text string: " << nodeName << " found while parsing region." << endl;
         }
     }
+}
+
+/*! 
+* \brief Write datamembers to datastream in XML format. Calls XMLWriteElement
+*        function from the XMLHelper class for the actual writing.
+* \param out Output file in XML format.
+* \param tabs Tabs object used to track the number of tabs to print.
+* \ref faqitem1 
+*/
+void Region::toInputXML( ostream& out, Tabs* tabs ) const {
+    XMLWriteOpeningTag ( getXMLName(), out, tabs, mName );
+
+    // write the xml for the class members.
+    // write out the single population object.
+    if( mDemographic ){
+        mDemographic->toInputXML( out, tabs);
+    }
+
+    // write out supply sector objects.
+    for( CSectorIterator j = mSupplySector.begin(); j != mSupplySector.end(); j++ ){
+        ( *j )->toInputXML( out, tabs );
+    }
+
+    // write out mGhgPolicies objects.
+    for( CGHGPolicyIterator l = mGhgPolicies.begin(); l != mGhgPolicies.end(); l++ ){
+        ( *l )->toInputXML( out, tabs );
+    }
+
+    // write out mPolicies objects.
+    for( CPolicyIterator l = mPolicies.begin(); l != mPolicies.end(); l++ ){
+        ( *l )->toInputXML( out, tabs );
+    }
+    
+    // write out the resources objects.
+    for( CResourceIterator i = mResources.begin(); i != mResources.end(); i++ ){
+        ( *i )->toInputXML( out, tabs );
+    }
+
+    toInputXMLDerived( out, tabs );
+
+    // finished writing xml for the class members.
+    XMLWriteClosingTag( getXMLName(), out, tabs );
 }
 
 /*! \brief Write datamembers to datastream in XML format for debugging purposes.  
@@ -379,12 +431,9 @@ const Curve* Region::getEmissionsQuantityCurve( const string& ghgName ) const {
 
     auto_ptr<ExplicitPointSet> emissionsPoints( new ExplicitPointSet() );
 
-    // Note the GroupedEmissionsSummer will update all years
-    GroupedEmissionsSummer emissGroup;
-    EmissionsSummer emissionsSummer( ghgName );
-    emissGroup.addEmissionsSummer( &emissionsSummer );
-    accept( &emissGroup, -1 );
     for( int i = 0; i < scenario->getModeltime()->getmaxper(); i++ ) {
+        EmissionsSummer emissionsSummer( ghgName );
+        accept( &emissionsSummer, i );
         XYDataPoint* currPoint = new XYDataPoint( modeltime->getper_to_yr( i ),
             emissionsSummer.getEmissions( i ) );
         emissionsPoints->addPoint( currPoint );

@@ -83,6 +83,9 @@ public:
                              std::ostream& aOut,
                              Tabs* aTabs ) const;
     
+    virtual void toInputXML( std::ostream& aOut,
+                             Tabs* aTabs ) const;
+    
     virtual double getLandAllocation( const std::string& aProductName,
                                       const int aPeriod ) const;
 
@@ -135,6 +138,9 @@ protected:
     virtual bool XMLDerivedClassParse( const std::string& aNodeName,
                                        const xercesc::DOMNode* aCurr );
 
+    virtual void toInputXMLDerived( std::ostream& aOutput,
+                                    Tabs* aTabs ) const;
+
     // Define data such that introspection utilities can process the data from this
     // subclass together with the data members of the parent classes.
     DEFINE_DATA_WITH_PARENT(
@@ -151,11 +157,7 @@ protected:
         DEFINE_VARIABLE( ARRAY, "carbonPriceIncreaseRate", mCarbonPriceIncreaseRate, objects::PeriodVector<double> ),
 
         //! Integer storing the soil time scale for a region
-        DEFINE_VARIABLE( SIMPLE, "soilTimeScale", mSoilTimeScale, int ),
-
-        //! The name of a negative emissions policy which may scale back
-        //! carbon subsidies if there isn't a budget to support it
-        DEFINE_VARIABLE( SIMPLE, "negative-emiss-market", mNegEmissMarketName, std::string )
+        DEFINE_VARIABLE( SIMPLE, "soilTimeScale", mSoilTimeScale, int )
     )
 
 private:

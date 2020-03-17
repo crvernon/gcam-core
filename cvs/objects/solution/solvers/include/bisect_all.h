@@ -79,9 +79,6 @@ protected:
     //! Default bracket interval to use for bracketing, could be overridden by a SolutionInfo
     double mDefaultBracketInterval;
     
-    //! Bracket tolerance for checking left-right bracket convergence
-    double mBracketTolerance;
-
     //! Max iterations for bracketing
     unsigned int mMaxBracketIterations;
     

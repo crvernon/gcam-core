@@ -66,6 +66,7 @@ class IExpectedProfitRateCalculator;
 */
 class Consumer : public BaseTechnology
 {
+    friend class SGMGenTable;
 public:
     Consumer();
     virtual Consumer* clone() const = 0;
@@ -94,6 +95,7 @@ public:
                                     const int aPeriod );
     virtual void postCalc( const std::string& aRegionName, const std::string& aSectorName, 
                            const int aPeriod );
+    virtual void csvSGMOutputFile( std::ostream& aFile, const int period ) const = 0;
     virtual void accept( IVisitor* aVisitor, const int aPeriod ) const;
     
     // Consumer should be contained directly in Subsector and then all these functions could be removed.
@@ -165,6 +167,7 @@ protected:
     void calcEmissions( const std::string& aGoodName, const std::string& aRegionName, const int aPeriod );
     virtual const std::string& getXMLName() const = 0;
     virtual bool XMLDerivedClassParse( const std::string& nodeName, const xercesc::DOMNode* curr ) = 0;
+    virtual void toInputXMLDerived( std::ostream& out, Tabs* tabs ) const = 0;
     virtual void toDebugXMLDerived( const int period, std::ostream& out, Tabs* tabs ) const = 0;
     double mUtilityParameterA;
 };

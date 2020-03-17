@@ -164,7 +164,8 @@ void LinkedGHGPolicy::XMLParse( const DOMNode* node ){
 }
 
 //! Writes data members to data stream in XML format.
-void LinkedGHGPolicy::toDebugXML( const int period, ostream& out, Tabs* tabs ) const {
+void LinkedGHGPolicy::toInputXML( ostream& out, Tabs* tabs ) const {
+    
     XMLWriteOpeningTag( getXMLName(), out, tabs, mName );
     XMLWriteElementCheckDefault( mPolicyName, "policy-name", out, tabs, mName );
     XMLWriteElement( mMarket, "market", out, tabs );
@@ -182,6 +183,11 @@ void LinkedGHGPolicy::toDebugXML( const int period, ostream& out, Tabs* tabs ) c
     
     // finished writing xml for the class members.
     XMLWriteClosingTag( getXMLName(), out, tabs );
+}
+
+//! Writes data members to data stream in XML format.
+void LinkedGHGPolicy::toDebugXML( const int period, ostream& out, Tabs* tabs ) const {
+    toInputXML( out, tabs );
 }
 
 /*! \brief Complete the initialization of the GHG policy.

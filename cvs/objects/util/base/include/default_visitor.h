@@ -103,9 +103,6 @@ public:
     
     virtual void startVisitSubResource( const SubResource* aSubResource, const int aPeriod ){}
     virtual void endVisitSubResource( const SubResource* aSubResource, const int aPeriod ){}
-    
-    virtual void startVisitReserveSubResource( const ReserveSubResource* aSubResource, const int aPeriod ){}
-    virtual void endVisitReserveSubResource( const ReserveSubResource* aSubResource, const int aPeriod ){}
 
     virtual void startVisitSubRenewableResource( const SubRenewableResource* aSubResource, const int aPeriod ){}
     virtual void endVisitSubRenewableResource( const SubRenewableResource* aSubResource, const int aPeriod ){}
@@ -121,9 +118,6 @@ public:
 
     virtual void startVisitSubsector( const Subsector* aSubsector, const int aPeriod ){}
     virtual void endVisitSubsector( const Subsector* aSubsector, const int aPeriod ){}
-    
-    virtual void startVisitNestingSubsector( const NestingSubsector* aSubsector, const int aPeriod ){}
-    virtual void endVisitNestingSubsector( const NestingSubsector* aSubsector, const int aPeriod ){}
 
     virtual void startVisitFinalDemand( const AFinalDemand* aFinalDemand, const int aPeriod ){}
     virtual void endVisitFinalDemand( const AFinalDemand* aFinalDemand, const int aPeriod ){}
@@ -196,6 +190,9 @@ public:
 
     virtual void startVisitGHG( const AGHG* aGHG, const int aPeriod ){}
     virtual void endVisitGHG( const AGHG* aGHG, const int aPeriod ){}
+
+    virtual void startVisitOutputMetaData( const OutputMetaData* aOutputMetaData, const int aPeriod ){}
+    virtual void endVisitOutputMetaData( const OutputMetaData* aOutputMetaData, const int aPeriod ){}
 
     virtual void startVisitMarketplace( const Marketplace* aMarketplace, const int aPeriod ){}
     virtual void endVisitMarketplace( const Marketplace* aMarketplace, const int aPeriod ){}

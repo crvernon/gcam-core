@@ -54,7 +54,6 @@ class NationalAccount;
 class Demographic;
 class Sector;
 class Subsector;
-class NestingSubsector;
 class BuildingDemandSubSector;
 class BaseTechnology;
 class Consumer;
@@ -76,10 +75,10 @@ class Expenditure;
 class AResource;
 class Scenario;
 class AGHG;
+class OutputMetaData;
 class Marketplace;
 class Market;
 class SubResource;
-class ReserveSubResource;
 class SubRenewableResource;
 class Grade;
 class Population;
@@ -177,9 +176,6 @@ public:
     
     virtual void startVisitSubResource( const SubResource* aSubResource, const int aPeriod ) = 0;
     virtual void endVisitSubResource( const SubResource* aSubResource, const int aPeriod ) = 0;
-    
-    virtual void startVisitReserveSubResource( const ReserveSubResource* aSubResource, const int aPeriod ) = 0;
-    virtual void endVisitReserveSubResource( const ReserveSubResource* aSubResource, const int aPeriod ) = 0;
 
     virtual void startVisitSubRenewableResource( const SubRenewableResource* aSubResource, const int aPeriod ) = 0;
     virtual void endVisitSubRenewableResource( const SubRenewableResource* aSubResource, const int aPeriod ) = 0;
@@ -201,9 +197,6 @@ public:
     
     virtual void startVisitSubsector( const Subsector* aSubsector, const int aPeriod ) = 0;
     virtual void endVisitSubsector( const Subsector* aSubsector, const int aPeriod ) = 0;
-    
-    virtual void startVisitNestingSubsector( const NestingSubsector* aSubsector, const int aPeriod ) = 0;
-    virtual void endVisitNestingSubsector( const NestingSubsector* aSubsector, const int aPeriod ) = 0;
     
     virtual void startVisitBuildingDemandSubsector( const BuildingDemandSubSector* aSubsector,
                                                     const int aPeriod ) = 0;
@@ -270,6 +263,9 @@ public:
 
     virtual void startVisitGHG( const AGHG* aGHG, const int aPeriod ) = 0;
     virtual void endVisitGHG( const AGHG* aGHG, const int aPeriod ) = 0;
+    
+    virtual void startVisitOutputMetaData( const OutputMetaData* aOutputMetaData, const int aPeriod ) = 0;
+    virtual void endVisitOutputMetaData( const OutputMetaData* aOutputMetaData, const int aPeriod ) = 0;
     
     virtual void startVisitMarketplace( const Marketplace* aMarketplace, const int aPeriod ) = 0;
     virtual void endVisitMarketplace( const Marketplace* aMarketplace, const int aPeriod ) = 0;

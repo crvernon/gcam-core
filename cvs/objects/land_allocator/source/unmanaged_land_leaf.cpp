@@ -44,6 +44,7 @@
 #include "util/base/include/xml_helper.h"
 #include "ccarbon_model/include/land_carbon_densities.h"
 #include "emissions/include/aghg.h"
+#include "util/base/include/summary.h"
 #include "util/base/include/ivisitor.h"
 #include "emissions/include/ghg_factory.h"
 #include "marketplace/include/marketplace.h"
@@ -114,8 +115,7 @@ void UnmanagedLandLeaf::setUnmanagedLandProfitRate( const string& aRegionName,
         adjustedProfitRate = adjustedProfitRate - expansionCost;
     }
 
-    mProfitRate[ aPeriod ] = max( adjustedProfitRate + getCarbonSubsidy( aRegionName, aPeriod )
-                                 + getLandConstraintCost( aRegionName, aPeriod ), 0.0 );
+    mProfitRate[ aPeriod ] = max( adjustedProfitRate + getCarbonSubsidy( aRegionName, aPeriod ), 0.0 );
 }  
 
 

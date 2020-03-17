@@ -46,6 +46,7 @@
 
 #include <xercesc/dom/DOMNode.hpp>
 #include "util/base/include/iparsable.h"
+#include "util/base/include/iround_trippable.h"
 
 // Forward declarations
 class Tabs;
@@ -76,7 +77,7 @@ class ITechnologyContainer;
  *
  * \author Pralit Patel
  */
-class GlobalTechnologyDatabase : public IParsable {
+class GlobalTechnologyDatabase : public IParsable, public IRoundTrippable {
 public:
     GlobalTechnologyDatabase();
     ~GlobalTechnologyDatabase();
@@ -89,6 +90,9 @@ public:
     
     // IParsable methods
     virtual bool XMLParse( const xercesc::DOMNode* aNode );
+    
+    // IRoundTrippable methods
+    virtual void toInputXML( std::ostream& aOut, Tabs* aTabs ) const;
     
 private:
     //! List of GlobalTechnologies

@@ -52,6 +52,7 @@
 
 #include "util/base/include/iparsable.h"
 #include "util/base/include/ivisitable.h"
+#include "util/base/include/iround_trippable.h"
 #include "util/base/include/data_definition_util.h"
 
 // Forward declarations
@@ -85,7 +86,7 @@ class ManageStateVariables;
 * \author Sonny Kim
 */
 
-class Scenario: public IParsable, public IVisitable
+class Scenario: public IParsable, public IVisitable, public IRoundTrippable
 {
     friend class LogEDFun;
 public:
@@ -99,6 +100,7 @@ public:
     bool XMLParse( const xercesc::DOMNode* node );
     void completeInit();
     void setName(std::string newName);
+    void toInputXML( std::ostream& out, Tabs* tabs ) const;
 
     const std::string& getName() const;
     bool run( const int aSinglePeriod, const bool aPrintDebugging, const std::string& aFilenameEnding = "" );
@@ -106,6 +108,7 @@ public:
     std::map<std::string, const Curve*> getEmissionsQuantityCurves( const std::string& ghgName ) const;
     std::map<std::string, const Curve*> getEmissionsPriceCurves( const std::string& ghgName ) const;
     void writeOutputFiles() const;
+    void dbOutput() const;
     void accept( IVisitor* aVisitor, const int aPeriod ) const;
     const IClimateModel* getClimateModel() const;
     static const std::string& getXMLNameStatic();
@@ -150,6 +153,9 @@ protected:
     //! we are using shared pointers since we are avoiding copying solvers when not
     //! necessary
     std::vector<boost::shared_ptr<Solver> > mSolvers;
+
+    //! A container of meta-data pertinent to outputting data.
+    std::auto_ptr<OutputMetaData> mOutputMetaData;
     
     //! Objects that may take model results and provide some sort of feedback as
     //! the scenario progresses through the model periods.
@@ -161,18 +167,22 @@ protected:
 
     bool calculatePeriod( const int aPeriod,
         std::ostream& aXMLDebugFile,
+        std::ostream& aSGMDebugFile,
         Tabs* aTabs,
         const bool aPrintDebugging );
 
     void printGraphs( const int aPeriod ) const;
     void printLandAllocatorGraph( const int aPeriod, const bool aPrintValues ) const;
- 
+    void csvSGMGenFile( std::ostream& aFile ) const;
+    void csvSGMOutputFile( std::ostream& aSGMDebugFile, const int aPeriod ) const;
+
     void logRunBeginning() const;
     void logPeriodBeginning( const int aPeriod ) const;
     void logPeriodEnding( const int aPeriod ) const;
     void logRunEnding() const;
 
     void writeDebuggingFiles( std::ostream& aXMLDebugFile,
+        std::ostream& aSGMDebugFile,
         Tabs* aTabs,
         const int aPeriod ) const;
 

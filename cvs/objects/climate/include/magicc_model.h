@@ -81,6 +81,7 @@ public:
     static const std::string& getXMLNameStatic();
     virtual const std::string& getXMLName() const { return getXMLNameStatic(); }
     virtual void XMLParse( const xercesc::DOMNode* node );
+    virtual void toInputXML( std::ostream& out, Tabs* tabs ) const;
     virtual void toDebugXML( const int period, std::ostream& out, Tabs* tabs ) const;
     
     virtual bool setEmissions( const std::string& aGasName,
@@ -114,6 +115,8 @@ public:
 
     virtual int getCarbonModelStartYear() const;
 
+    virtual void printFileOutput() const;
+    virtual void printDBOutput() const;
     virtual void accept( IVisitor* aVisitor, const int aPeriod ) const;
     
     static const std::string& getnetDefor80sName();

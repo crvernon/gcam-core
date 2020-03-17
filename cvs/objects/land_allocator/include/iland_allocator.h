@@ -47,6 +47,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include "util/base/include/ivisitable.h"
 #include "util/base/include/iparsable.h"
+#include "util/base/include/iround_trippable.h"
 
 // Forward declarations
 class Tabs;
@@ -60,7 +61,8 @@ class ALandAllocatorItem;
  *          usages.
  */
 class ILandAllocator : public IVisitable,
-                       public IParsable
+                       public IParsable,
+                       public IRoundTrippable
 {
 public:
     ILandAllocator();
@@ -72,6 +74,8 @@ public:
     virtual bool XMLParse( const xercesc::DOMNode* aNode ) = 0;
     
     virtual void toDebugXML( const int aPeriod, std::ostream& aOut, Tabs* aTabs ) const = 0;
+    
+    virtual void toInputXML( std::ostream& aOut, Tabs* aTabs ) const = 0;
     
     /*!
      * \brief Set the rate at which the carbon price is expected to increase

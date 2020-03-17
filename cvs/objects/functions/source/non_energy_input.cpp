@@ -166,6 +166,15 @@ void NonEnergyInput::XMLParse( const xercesc::DOMNode* node ) {
     }
 }
 
+void NonEnergyInput::toInputXML( ostream& aOut,
+                                 Tabs* aTabs ) const
+{
+    XMLWriteOpeningTag( getXMLNameStatic(), aOut, aTabs, mName );
+    XMLWriteElement( mCost, "input-cost", aOut, aTabs );
+    XMLWriteElementCheckDefault( mTechChange, "tech-change", aOut, aTabs, Value( 0 ) );
+    XMLWriteClosingTag( getXMLNameStatic(), aOut, aTabs );
+}
+
 void NonEnergyInput::toDebugXML( const int aPeriod,
                                  ostream& aOut,
                                  Tabs* aTabs ) const
@@ -187,7 +196,7 @@ void NonEnergyInput::completeInit( const string& aRegionName,
     // Initialize the adjusted costs in all periods to the base read-in costs.
     // These costs may be adjusted by the Technology, for instance for capture
     // penalties.
-    fill( mAdjustedCosts.begin(), mAdjustedCosts.end(), mCost );
+    mAdjustedCosts.assign( mAdjustedCosts.size(), mCost );
 }
 
 void NonEnergyInput::initCalc( const string& aRegionName,

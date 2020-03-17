@@ -85,6 +85,10 @@ public:
     virtual void XMLParse( const xercesc::DOMNode* aNode );
 
     virtual bool isSameType( const std::string& aType ) const;
+    
+
+    virtual void toInputXML( std::ostream& aOut,
+                             Tabs* aTabs ) const;
 
     virtual void toDebugXML( const int aPeriod,
                              std::ostream& aOut,
@@ -162,12 +166,12 @@ protected:
         
         //! Cost of the non-energy input adjusted for the additional costs of the
         //! capture component.
-        DEFINE_VARIABLE( ARRAY, "adjusted-cost", mAdjustedCosts, objects::TechVintageVector<Value> ),
+        DEFINE_VARIABLE( ARRAY, "adjusted-cost", mAdjustedCosts, objects::PeriodVector<Value> ),
         
         //! Coefficient for production or demand function. Coefficients are not
         // read in and are initialized to 1, but can increase over time with
         // technical change.
-        DEFINE_VARIABLE( ARRAY, "adjusted-coef", mAdjustedCoefficients, objects::TechVintageVector<Value> ),
+        DEFINE_VARIABLE( ARRAY, "adjusted-coef", mAdjustedCoefficients, objects::PeriodVector<Value> ),
         
         //! Input specific technical change.
         DEFINE_VARIABLE( SIMPLE, "tech-change", mTechChange, Value ),

@@ -67,6 +67,10 @@ class IVisitor;
  */
 class TradeConsumer : public Consumer
 {
+    friend class SocialAccountingMatrix;
+    friend class DemandComponentsTable;
+    friend class SectorReport;
+    friend class SGMGenTable;
     friend class XMLDBOutputter;
 public:
     TradeConsumer();
@@ -96,6 +100,7 @@ public:
         const MoreSectorInfo* moreSectorInfo, const std::string& aRegionName, 
         const std::string& aSectorName, const bool aIsNewVintageMode, const int aPeriod );
         
+    void csvSGMOutputFile( std::ostream& aFile, const int period ) const;
     virtual void accept( IVisitor* aVisitor, const int aPeriod ) const;
 
     static const std::string& getXMLNameStatic();
@@ -111,6 +116,7 @@ protected:
 
     const std::string& getXMLName() const;
     bool XMLDerivedClassParse( const std::string& nodeName, const xercesc::DOMNode* curr );
+    void toInputXMLDerived( std::ostream& out, Tabs* tabs ) const;
     void toDebugXMLDerived( const int period, std::ostream& out, Tabs* tabs ) const;
 private:
     void calcIncome( NationalAccount& aNationalAccount, const Demographic* aDemographics, 

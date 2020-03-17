@@ -68,6 +68,10 @@ public:
 
 	virtual ~IExpectedProfitRateCalculator();
 
+    // TODO: Inherit so that documentation is inherited.
+    // TODO: Add an XMLParse since there is a toInputXML.
+    virtual void toInputXML( std::ostream& aOut, Tabs* aTabs ) const = 0;
+
     virtual void toDebugXML( const int aPeriod,
                              std::ostream& aOut,
                              Tabs* aTabs ) const = 0;

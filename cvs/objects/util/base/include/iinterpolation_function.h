@@ -46,6 +46,7 @@
 #include <boost/core/noncopyable.hpp>
 
 #include "util/base/include/iparsable.h"
+#include "util/base/include/iround_trippable.h"
 #include "util/base/include/data_definition_util.h"
 
 class DataPoint;
@@ -62,7 +63,7 @@ class SCurveInterpolationFunction;
  * \author Pralit Patel
  * \author Sonny Kim
  */
-class IInterpolationFunction : public IParsable, private boost::noncopyable {
+class IInterpolationFunction : public IParsable, public IRoundTrippable, private boost::noncopyable {
 public:
     //! Virtual destructor so that instances of the interface may be deleted
     //! correctly through a pointer to the interface.

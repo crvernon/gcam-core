@@ -44,8 +44,6 @@
  * \author Kate Calvin
  */
 
-#include <memory>
-
 #include "emissions/include/aghg.h"
 #include "util/base/include/time_vector.h"
 #include "util/base/include/value.h"
@@ -106,6 +104,7 @@ protected:
     
     virtual const std::string& getXMLName() const;
     virtual bool XMLDerivedClassParse( const std::string& aNodeName, const xercesc::DOMNode* aCurrNode );
+    virtual void toInputXMLDerived( std::ostream& aOut, Tabs* aTabs ) const;
     virtual void toDebugXMLDerived( const int period, std::ostream& aOut, Tabs* aTabs ) const;
     
     // Define data such that introspection utilities can process the data from this
@@ -124,7 +123,7 @@ protected:
                                 
         //! Stored Emissions Coefficient (needed for some control technologies)
         //! The emissions coefficient is the current ratio of emissions to driver, accounting for any controls   
-        DEFINE_VARIABLE( ARRAY | STATE, "control-adjusted-emiss-coef", mAdjustedEmissCoef, objects::TechVintageVector<Value> )
+        DEFINE_VARIABLE( ARRAY | STATE, "control-adjusted-emiss-coef", mAdjustedEmissCoef, objects::PeriodVector<Value> )
     )
 
     //! A flag to indicate if mInputEmissions should be used recalibrate mEmissionsCoef
@@ -141,7 +140,7 @@ protected:
 
     // typdef to help simplify code
     typedef std::vector<AEmissionsControl*>::const_iterator CControlIterator;
-    
+
     void clear();
 
     void copy( const NonCO2Emissions& aOther );

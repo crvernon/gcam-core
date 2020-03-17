@@ -97,7 +97,7 @@ public:
     IInfo* getMarketInfo( const std::string& aGoodName, const std::string& aRegionName,
                          const int aPeriod, const bool aMustExist );
 private:
-#ifndef NDEBUG
+#if(!NDEBUG)
     //! The good name used when this market was located.  Used for debugging.
     const std::string mGoodName;
     

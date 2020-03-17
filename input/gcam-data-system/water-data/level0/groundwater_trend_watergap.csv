@@ -1,0 +1,471 @@
+basin.id,trend_km3PerYr,basinName,scenario,model
+55,-0.10202294421708707,Adriatic Sea - Greece - Black Sea Coast,hi,watergap
+171,-0.47562696132110543,"Africa, East Central Coast",hi,watergap
+190,-0.30507836368827407,"Africa, Indian Ocean Coast",hi,watergap
+144,-2.0730830298211904,"Africa, North Interior",hi,watergap
+86,-2.052088452072634,"Africa, North West Coast",hi,watergap
+100,-0.01471925582279435,"Africa, Red Sea - Gulf of Aden Coast",hi,watergap
+197,1.5605674877609208,"Africa, South Interior",hi,watergap
+142,-1.8642656650281777,"Africa, West Coast",hi,watergap
+168,2.4375596987294745,Amazon,hi,watergap
+58,-0.13471819903777205,Amu Darya,hi,watergap
+43,0.23109976855150355,Amur,hi,watergap
+141,-0.006843727807551405,Andaman - Nicobar Islands,hi,watergap
+182,1.229450433950049,"Angola, Coast",hi,watergap
+216,0,Antarctica,hi,watergap
+94,-9.736543247214458,Arabian Peninsula,hi,watergap
+104,-0.6772418002758948,Arabian Sea Coast,hi,watergap
+1,-0.13132120251102752,Arctic Ocean Islands,hi,watergap
+224,-4.716670939084849,Arkansas White Red Basin,hi,watergap
+19,0.4487038762488458,Atlantic Ocean Seaboard,hi,watergap
+189,0.20117267906615627,"Australia, East Coast",hi,watergap
+193,-1.9376957123447955,"Australia, Interior",hi,watergap
+184,-1.1639433644533348,"Australia, North Coast",hi,watergap
+202,-0.01780550913810539,"Australia, South Coast",hi,watergap
+191,-0.06360223051987995,"Australia, West Coast",hi,watergap
+91,-0.6637633322498271,Baja California,hi,watergap
+20,0.13807695444313575,Baltic Sea Coast,hi,watergap
+116,-0.13027761481761532,"Bay of Bengal, North East Coast",hi,watergap
+47,-0.10800784183922005,"Black Sea, North Coast",hi,watergap
+70,-0.06773694528924709,"Black Sea, South Coast",hi,watergap
+66,-2.625358564791797,"Bo Hai - Korean Bay, North Coast",hi,watergap
+120,0.09025370458170977,Brahamani,hi,watergap
+217,-5.916120951741995,California River Basin,hi,watergap
+101,-0.8171612888410239,Caribbean,hi,watergap
+143,-0.20310546412618435,Caribbean Coast,hi,watergap
+45,-0.08810715970486167,Caspian Sea Coast,hi,watergap
+52,-1.7740961326760785,"Caspian Sea, East Coast",hi,watergap
+72,-0.15163081360813338,"Caspian Sea, South West Coast",hi,watergap
+153,-0.7704766196760071,Cauvery,hi,watergap
+82,-8.0832150322487,Central Iran,hi,watergap
+214,-0.03362951997296393,Central Patagonia Highlands,hi,watergap
+146,0.12069047728157631,Chao Phraya,hi,watergap
+78,-0.21707818410811994,China Coast,hi,watergap
+34,0.1010062950328355,Churchill,hi,watergap
+157,0.01587037328340651,"Colombia - Ecuador, Pacific Coast",hi,watergap
+183,-0.9910832120614087,Congo,hi,watergap
+54,0.7986094211776722,Danube,hi,watergap
+25,0.051724273902056514,Daugava,hi,watergap
+95,-0.07875494793969952,Dead Sea,hi,watergap
+21,-0.017524356488025913,Denmark - Germany Coast,hi,watergap
+39,0.01608349474176963,Dnieper,hi,watergap
+49,-0.04369615236941775,Dniester,hi,watergap
+53,-0.3224461952823447,Don,hi,watergap
+74,-0.1723379156889458,Douro,hi,watergap
+186,1.084604809709182,"East Brazil, South Atlantic Coast",hi,watergap
+99,-0.49946627149649,Eastern Jordan - Syria,hi,watergap
+73,-0.11784643698289497,Ebro,hi,watergap
+31,-0.16991522156251576,Elbe,hi,watergap
+28,-0.0699713441096446,Ems - Weser,hi,watergap
+26,-0.23331006374468602,England and Wales,hi,watergap
+90,0.012935381327206872,Farahrud,hi,watergap
+13,0.06024393303115853,Finland,hi,watergap
+181,0.0334581587748494,Fly,hi,watergap
+61,-0.2653827693476293,"France, South Coast",hi,watergap
+41,-0.27975019354084213,"France, West Coast",hi,watergap
+27,0.030634322695810453,Fraser,hi,watergap
+110,-11.749419589273376,Ganges - Bramaputra,hi,watergap
+64,-0.07915059618252515,Gironde,hi,watergap
+42,-0.09479990290930633,Gobi Interior,hi,watergap
+123,-1.8014526653149951,Godavari,hi,watergap
+222,0.0149862224336313,Great Basin,hi,watergap
+227,0.5421121483673197,Great Lakes Basin,hi,watergap
+133,0.008617175711024718,Grijalva - Usumacinta,hi,watergap
+83,-0.03822352728260281,Guadalquivir,hi,watergap
+81,-0.9095082750348182,Guadiana,hi,watergap
+162,-1.8160049008694417,Gulf of Guinea,hi,watergap
+148,-0.09297046687322574,Gulf of Thailand Coast,hi,watergap
+124,-0.03185829543464711,Hainan,hi,watergap
+102,-0.6595660416797632,Hamun-i-Mashkel,hi,watergap
+234,-0.7934314871746959,Hawaii,hi,watergap
+97,0.10355232665680693,Helmand,hi,watergap
+109,0.025709619594856247,Hong (Red River),hi,watergap
+79,-1.000133103330196,Huang He,hi,watergap
+15,0.4103722432918894,Hudson Bay Coast,hi,watergap
+11,0.1516475137231503,Iceland,hi,watergap
+145,-0.783297547912051,India East Coast,hi,watergap
+128,0.06160144321967115,India North East Coast,hi,watergap
+155,-0.47372132521980315,India South Coast,hi,watergap
+129,0.06513450281035268,India West Coast,hi,watergap
+89,-4.316982176043227,Indus,hi,watergap
+24,0.06050908771892147,Ireland,hi,watergap
+167,1.3229945277820454,Irian Jaya Coast,hi,watergap
+137,-0.45635360456009005,Irrawaddy,hi,watergap
+136,0.07304054533683406,Isthmus of Tehuantepec,hi,watergap
+50,-0.22359876244660715,"Italy, East Coast",hi,watergap
+59,-0.08270172170202361,"Italy, West Coast",hi,watergap
+51,-2.637980980707474,Japan,hi,watergap
+175,-0.5503979048763417,Java - Timor,hi,watergap
+165,2.364736163137713,Kalimantan,hi,watergap
+5,0.05732512491349671,Kara Sea Coast,hi,watergap
+140,-1.526618813484592,Krishna,hi,watergap
+206,-0.927572493461998,La Plata,hi,watergap
+200,-0.07825351690534944,La Puna Region,hi,watergap
+68,-0.20374075703679362,Lake Balkash,hi,watergap
+151,0.7322589884971153,Lake Chad,hi,watergap
+6,0.26195485411736225,Lena,hi,watergap
+199,-0.6784385390839006,Limpopo,hi,watergap
+44,-0.27549641997425955,Loire,hi,watergap
+221,-0.9306084937476887,Lower Colorado River Basin,hi,watergap
+219,-4.834167153000278,Lower Mississippi River Basin,hi,watergap
+10,0.6716151043598592,Mackenzie,hi,watergap
+177,-1.975478687855772e-4,Madasgacar,hi,watergap
+166,0.5941102406342837,Magdalena,hi,watergap
+122,0.21663098901581843,Mahandi,hi,watergap
+113,0.14903936903045192,Mahi,hi,watergap
+203,-0.20497744994616673,Mar Chiquita,hi,watergap
+63,-0.36956210328034866,Mediterranean Sea Islands,hi,watergap
+75,-1.8507552625667538,"Mediterranean Sea, East Coast",hi,watergap
+80,-3.9361080464396094,Mediterranean South Coast,hi,watergap
+125,-0.8934040431916707,Mekong,hi,watergap
+114,-0.5922533444961251,"Mexico, Interior",hi,watergap
+96,-0.5675103971957647,"Mexico, Northwest Coast",hi,watergap
+150,0,Micronesia,hi,watergap
+233,-2.978985783789671,Mid-Atlantic Basin,hi,watergap
+223,-1.5016756102174023,Missouri River Basin,hi,watergap
+208,-1.1834254027922404,Murray - Darling,hi,watergap
+196,0.09077795507530001,"Namibia, Coast",hi,watergap
+235,0.04290650021536151,Narmada,hi,watergap
+22,0.0684137134180564,Narva,hi,watergap
+213,-0.16008387384007838,Negro,hi,watergap
+35,0.08538892322011737,Neman,hi,watergap
+17,0.19432610675227222,Neva,hi,watergap
+232,0.2606834082544561,New England Basin,hi,watergap
+201,0.5224147334923377,New Zealand,hi,watergap
+149,0.9670066899223361,Niger,hi,watergap
+87,-0.7479004473802993,Nile,hi,watergap
+65,-0.6819705499077617,North and South Korea,hi,watergap
+210,-0.8563161706315039,"North Argentina, South Atlantic Coast",hi,watergap
+159,1.0141002508022334,North Borneo Coast,hi,watergap
+172,-0.162568789441639,"North Brazil, South Atlantic Coast",hi,watergap
+207,-0.0501660180451775,"North Chile, Pacific Coast",hi,watergap
+105,0.06329408825229078,North Gulf,hi,watergap
+121,0,North Marina Islands and Guam,hi,watergap
+161,-0.08350962012398493,"Northeast South America, South Atlantic Coast",hi,watergap
+14,0.4459279320736225,Northern Dvina,hi,watergap
+2,0.08897906593576674,Northwest Territories,hi,watergap
+56,-0.8247654132071246,Ob,hi,watergap
+29,-0.026086459752941604,Oder,hi,watergap
+228,0.44513767086830086,Ohio River Basin,hi,watergap
+194,-0.13266889628548423,Orange,hi,watergap
+156,-0.5833467789899252,Orinoco,hi,watergap
+7,-0.35196799365313436,Pacific and Arctic Coast,hi,watergap
+115,0.021875102188052536,Pacific Central Coast,hi,watergap
+229,0.1483666640865606,Pacific Northwest Basin,hi,watergap
+158,0.017344772333889907,Palau and East Indonesia,hi,watergap
+209,-0.5945571608290634,Pampas Region,hi,watergap
+130,0.023560783540214632,Papaloapan,hi,watergap
+173,-0.21140742321453457,Papua New Guinea Coast,hi,watergap
+187,0.11251124632664168,Parnaiba,hi,watergap
+139,-0.0024725707152306628,Peninsula Malaysia,hi,watergap
+147,-0.18637649436117207,Pennar,hi,watergap
+88,-0.858707476624084,Persian Gulf Coast,hi,watergap
+180,-2.472188037027702,"Peru, Pacific Coast",hi,watergap
+119,-0.022083851167685804,Philippines,hi,watergap
+92,0.05428024839624341,Plateau of Tibet Interior,hi,watergap
+57,-0.05848322726608833,Po,hi,watergap
+33,-0.08356002878605741,Poland Coast,hi,watergap
+93,-4.011171421690633,"Red Sea, East Coast",hi,watergap
+134,-0.4985535867218868,Rfo Balsas,hi,watergap
+131,-1.4788969346558978,Rfo Lerma,hi,watergap
+132,-1.7452616348685837,Rfo Verde,hi,watergap
+62,-0.10285206216201682,Rh(ne,hi,watergap
+32,-0.40488147249856243,Rhine,hi,watergap
+179,0.14495058693791593,Rift Valley,hi,watergap
+231,-1.485588212964807,Rio Grande River Basin,hi,watergap
+9,0.6417783778033029,"Russia, Barents Sea Coast",hi,watergap
+37,-0.005011678117933003,"Russia, South East Coast",hi,watergap
+107,-8.79738149852543,Sabarmati,hi,watergap
+205,-0.16615662492721356,Salinas Grandes,hi,watergap
+127,-0.1589157846456315,Salween,hi,watergap
+192,-0.1535177505130603,Sao Francisco,hi,watergap
+23,0.35315429887052274,Saskatchewan - Nelson,hi,watergap
+8,0.2891452949054698,"Scandinavia, North Coast",hi,watergap
+36,-0.09017756180764713,Scheldt,hi,watergap
+16,0.02685652318389217,Scotland,hi,watergap
+46,-0.9469583121853968,Seine,hi,watergap
+152,-0.13938542644548746,Senegal,hi,watergap
+178,0.01306682112826568,Sepik,hi,watergap
+170,0.08489117953976681,Shebelli - Juba,hi,watergap
+3,0.09808749359302991,"Siberia, North Coast",hi,watergap
+4,0.24425713811575853,"Siberia, West Coast",hi,watergap
+98,-0.030102025912151137,Sinai Peninsula,hi,watergap
+138,-0.060576316183998787,Sittang,hi,watergap
+176,-0.2671414908522811,Solomon Islands,hi,watergap
+198,-0.4143458500459554,"South Africa, South Coast",hi,watergap
+204,0.0298584558190951,"South Africa, West Coast",hi,watergap
+212,-0.16136630438037886,"South America, Colorado",hi,watergap
+215,-0.15289356705462065,"South Argentina, South Atlantic Coast",hi,watergap
+226,-0.6353517057973311,South Atlantic-Gulf Basin,hi,watergap
+169,-0.3479105355289636,"South Chile, Pacific Coast",hi,watergap
+112,-0.011275037778865026,South China Sea Coast,hi,watergap
+185,-0.15834556124421992,South Pacific Islands,hi,watergap
+135,0.41415046937028765,Southern Central America,hi,watergap
+60,-0.16019202322393347,"Spain - Portugal, Atlantic Coast",hi,watergap
+67,-0.3419983944417831,"Spain, South and East Coast",hi,watergap
+154,0.15285207310581003,Sri Lanka,hi,watergap
+40,0.3742882838331588,St Lawrence,hi,watergap
+164,-0.28277375994938814,Sulawesi,hi,watergap
+163,-0.44961677348736395,Sumatra,hi,watergap
+12,-0.24672938868913563,Sweden,hi,watergap
+76,0.2797924950274027,Syr Darya,hi,watergap
+71,-0.12156344945950548,Tagus,hi,watergap
+103,0.022492120898235865,Taiwan,hi,watergap
+117,-0.03237965542430594,Tapti,hi,watergap
+85,0.26151217528162174,Tarim Interior,hi,watergap
+211,-0.07235165769009233,Tasmania,hi,watergap
+230,-0.003126387623135597,Tennessee River Basin,hi,watergap
+225,-3.640806181579769,Texas Gulf Coast Basin,hi,watergap
+69,0.006206394522080448,Tiber,hi,watergap
+84,-2.1380887394148522,Tigris - Euphrates,hi,watergap
+174,-0.3775747213028552,Tocantins,hi,watergap
+220,0.07368759681266039,Upper Colorado River Basin,hi,watergap
+218,0.3478754520829255,Upper Mississippi Basin,hi,watergap
+38,-0.05309925167006214,Ural,hi,watergap
+195,-0.5295852778746751,"Uruguay - Brazil, South Atlantic Coast",hi,watergap
+126,-0.13904914259576426,"Viet Nam, Coast",hi,watergap
+18,-0.1108619980797704,Volga,hi,watergap
+160,0.1557807510276564,Volta,hi,watergap
+30,0.05289693143522182,Wisla,hi,watergap
+108,0.0070690133300935504,Xun Jiang,hi,watergap
+106,-0.4284418893780727,Yangtze,hi,watergap
+118,0.016302065109113615,Yasai,hi,watergap
+48,0.371727296682297,Yenisey,hi,watergap
+111,-0.08878860652154548,Yucat?n Peninsula,hi,watergap
+188,1.4823956195989454,Zambezi,hi,watergap
+77,-4.652361735038298,"Ziya He, Interior",hi,watergap
+55,0.22941767356207393,Adriatic Sea - Greece - Black Sea Coast,nhi,watergap
+171,-0.47756142562876547,"Africa, East Central Coast",nhi,watergap
+190,-0.3051674411814097,"Africa, Indian Ocean Coast",nhi,watergap
+144,0.34838210476011894,"Africa, North Interior",nhi,watergap
+86,0.021992445457265725,"Africa, North West Coast",nhi,watergap
+100,-0.013814730619118303,"Africa, Red Sea - Gulf of Aden Coast",nhi,watergap
+197,1.5619333626410732,"Africa, South Interior",nhi,watergap
+142,-1.8441129646630279,"Africa, West Coast",nhi,watergap
+168,2.444970935009938,Amazon,nhi,watergap
+58,-0.05620196941366729,Amu Darya,nhi,watergap
+43,0.455550652726178,Amur,nhi,watergap
+141,-0.006515209423310456,Andaman - Nicobar Islands,nhi,watergap
+182,1.2301828403214208,"Angola, Coast",nhi,watergap
+216,0,Antarctica,nhi,watergap
+94,0.13870244942556317,Arabian Peninsula,nhi,watergap
+104,0.06233216517131754,Arabian Sea Coast,nhi,watergap
+1,-0.13131787946842574,Arctic Ocean Islands,nhi,watergap
+224,0.0847349686142135,Arkansas White Red Basin,nhi,watergap
+19,0.44827580895132557,Atlantic Ocean Seaboard,nhi,watergap
+189,0.37366118969179635,"Australia, East Coast",nhi,watergap
+193,-1.9375901916648735,"Australia, Interior",nhi,watergap
+184,-1.1397547753631718,"Australia, North Coast",nhi,watergap
+202,-0.017971438680422676,"Australia, South Coast",nhi,watergap
+191,-0.062078793625648415,"Australia, West Coast",nhi,watergap
+91,0.021532067914505376,Baja California,nhi,watergap
+20,0.13797833927012187,Baltic Sea Coast,nhi,watergap
+116,-0.1438717262349473,"Bay of Bengal, North East Coast",nhi,watergap
+47,-0.14398515350824548,"Black Sea, North Coast",nhi,watergap
+70,0.11986997213443931,"Black Sea, South Coast",nhi,watergap
+66,0.051416980717121225,"Bo Hai - Korean Bay, North Coast",nhi,watergap
+120,0.09205606414871534,Brahamani,nhi,watergap
+217,-0.008137878283606667,California River Basin,nhi,watergap
+101,0.5537871090741173,Caribbean,nhi,watergap
+143,0.23664901396855423,Caribbean Coast,nhi,watergap
+45,-0.08718824585790129,Caspian Sea Coast,nhi,watergap
+52,0.08753843762370367,"Caspian Sea, East Coast",nhi,watergap
+72,-0.02695159979101356,"Caspian Sea, South West Coast",nhi,watergap
+153,0.057281683350941914,Cauvery,nhi,watergap
+82,0.2665560614074811,Central Iran,nhi,watergap
+214,-0.03373833223317946,Central Patagonia Highlands,nhi,watergap
+146,0.09594292621685215,Chao Phraya,nhi,watergap
+78,-0.18086590978543815,China Coast,nhi,watergap
+34,0.10100782150093093,Churchill,nhi,watergap
+157,0.048299027117805926,"Colombia - Ecuador, Pacific Coast",nhi,watergap
+183,-0.9884089619484814,Congo,nhi,watergap
+54,0.16865341358731645,Danube,nhi,watergap
+25,0.05300682425087897,Daugava,nhi,watergap
+95,-0.005631158451713433,Dead Sea,nhi,watergap
+21,-0.0213268167234652,Denmark - Germany Coast,nhi,watergap
+39,0.03304669753782992,Dnieper,nhi,watergap
+49,8.605924666090311e-5,Dniester,nhi,watergap
+53,-0.32392705405882394,Don,nhi,watergap
+74,-0.17195246269239817,Douro,nhi,watergap
+186,1.0689549550659154,"East Brazil, South Atlantic Coast",nhi,watergap
+99,-0.02018993788705101,Eastern Jordan - Syria,nhi,watergap
+73,0.008196379281003738,Ebro,nhi,watergap
+31,-0.048313601955462054,Elbe,nhi,watergap
+28,-0.0707265546694285,Ems - Weser,nhi,watergap
+26,-0.4087542455199338,England and Wales,nhi,watergap
+90,0.02179414609719024,Farahrud,nhi,watergap
+13,0.05922552489335074,Finland,nhi,watergap
+181,0.03345862922919828,Fly,nhi,watergap
+61,-0.01579389257629015,"France, South Coast",nhi,watergap
+41,-0.2872160928385685,"France, West Coast",nhi,watergap
+27,0.029405629748930108,Fraser,nhi,watergap
+110,-0.8653592209368476,Ganges - Bramaputra,nhi,watergap
+64,-0.0845444051315213,Gironde,nhi,watergap
+42,-0.11970432487446248,Gobi Interior,nhi,watergap
+123,0.1938233743140493,Godavari,nhi,watergap
+222,0.10200842874356167,Great Basin,nhi,watergap
+227,0.5171852144128053,Great Lakes Basin,nhi,watergap
+133,0.011180153514862306,Grijalva - Usumacinta,nhi,watergap
+83,-0.03707516131818635,Guadalquivir,nhi,watergap
+81,-0.06404349938506462,Guadiana,nhi,watergap
+162,-1.813578534449375,Gulf of Guinea,nhi,watergap
+148,-0.10055882906342122,Gulf of Thailand Coast,nhi,watergap
+124,-0.036013310924604254,Hainan,nhi,watergap
+102,0.052206872724879,Hamun-i-Mashkel,nhi,watergap
+234,0.030876682195109802,Hawaii,nhi,watergap
+97,0.12522992114632306,Helmand,nhi,watergap
+109,-0.003847804980487507,Hong (Red River),nhi,watergap
+79,0.29245106822657607,Huang He,nhi,watergap
+15,0.41036724031273614,Hudson Bay Coast,nhi,watergap
+11,0.15155830576630644,Iceland,nhi,watergap
+145,0.12886745838061114,India East Coast,nhi,watergap
+128,0.07303881062736835,India North East Coast,nhi,watergap
+155,0.23139687051166474,India South Coast,nhi,watergap
+129,0.14084522240839703,India West Coast,nhi,watergap
+89,0.3663754883444599,Indus,nhi,watergap
+24,0.06104579523467251,Ireland,nhi,watergap
+167,1.3239437935446738,Irian Jaya Coast,nhi,watergap
+137,-0.5163278960455462,Irrawaddy,nhi,watergap
+136,0.07627766460286808,Isthmus of Tehuantepec,nhi,watergap
+50,0.08158268491995374,"Italy, East Coast",nhi,watergap
+59,0.10255038611161502,"Italy, West Coast",nhi,watergap
+51,-0.373984264499494,Japan,nhi,watergap
+175,-0.6508343415172686,Java - Timor,nhi,watergap
+165,2.3657638776772574,Kalimantan,nhi,watergap
+5,0.057561968870506755,Kara Sea Coast,nhi,watergap
+140,0.22221613729669715,Krishna,nhi,watergap
+206,-0.5253455835258584,La Plata,nhi,watergap
+200,-0.07644301997779325,La Puna Region,nhi,watergap
+68,-0.22038769723588533,Lake Balkash,nhi,watergap
+151,0.7337010460328234,Lake Chad,nhi,watergap
+6,0.2776143572507963,Lena,nhi,watergap
+199,-0.6504336805563087,Limpopo,nhi,watergap
+44,-0.27461043096732707,Loire,nhi,watergap
+221,0.017335147882387575,Lower Colorado River Basin,nhi,watergap
+219,0.03052883970580155,Lower Mississippi River Basin,nhi,watergap
+10,0.6715933019706111,Mackenzie,nhi,watergap
+177,0.0056961621995976165,Madasgacar,nhi,watergap
+166,0.6085220760652973,Magdalena,nhi,watergap
+122,0.2229665603774705,Mahandi,nhi,watergap
+113,0.05455915044603131,Mahi,nhi,watergap
+203,-0.19974290848085377,Mar Chiquita,nhi,watergap
+63,0.15432003577538755,Mediterranean Sea Islands,nhi,watergap
+75,-0.012366049453910798,"Mediterranean Sea, East Coast",nhi,watergap
+80,0.20071492815084882,Mediterranean South Coast,nhi,watergap
+125,-0.9757852720023238,Mekong,nhi,watergap
+114,0.04126848577583535,"Mexico, Interior",nhi,watergap
+96,0.0720386543155339,"Mexico, Northwest Coast",nhi,watergap
+150,0,Micronesia,nhi,watergap
+233,0.02515398900520658,Mid-Atlantic Basin,nhi,watergap
+223,1.0667564853519507,Missouri River Basin,nhi,watergap
+208,-1.1026226959150787,Murray - Darling,nhi,watergap
+196,0.09183704075228413,"Namibia, Coast",nhi,watergap
+235,0.03676431419966903,Narmada,nhi,watergap
+22,0.06853677561955204,Narva,nhi,watergap
+213,-0.15976361513807097,Negro,nhi,watergap
+35,0.08812191659291455,Neman,nhi,watergap
+17,0.19422900770703821,Neva,nhi,watergap
+232,0.37796523479782235,New England Basin,nhi,watergap
+201,0.5095838961497278,New Zealand,nhi,watergap
+149,0.9718373738510753,Niger,nhi,watergap
+87,-0.573964126811845,Nile,nhi,watergap
+65,-0.10204632256342817,North and South Korea,nhi,watergap
+210,-0.8521266996819042,"North Argentina, South Atlantic Coast",nhi,watergap
+159,1.0162866897739433,North Borneo Coast,nhi,watergap
+172,-0.1602583604008406,"North Brazil, South Atlantic Coast",nhi,watergap
+207,-0.037422579548677996,"North Chile, Pacific Coast",nhi,watergap
+105,0.08630110401008624,North Gulf,nhi,watergap
+121,0,North Marina Islands and Guam,nhi,watergap
+161,-0.07690662298620743,"Northeast South America, South Atlantic Coast",nhi,watergap
+14,0.44652102866972604,Northern Dvina,nhi,watergap
+2,0.08896992412805711,Northwest Territories,nhi,watergap
+56,-0.845713804418679,Ob,nhi,watergap
+29,-0.022941161740363522,Oder,nhi,watergap
+228,0.4565385284148018,Ohio River Basin,nhi,watergap
+194,-0.09206247160241944,Orange,nhi,watergap
+156,-0.5719494478570482,Orinoco,nhi,watergap
+7,-0.3353817820161246,Pacific and Arctic Coast,nhi,watergap
+115,0.021567857909485875,Pacific Central Coast,nhi,watergap
+229,0.2325771302459804,Pacific Northwest Basin,nhi,watergap
+158,0.01769022868473781,Palau and East Indonesia,nhi,watergap
+209,-0.5940050729387939,Pampas Region,nhi,watergap
+130,0.024992487638633747,Papaloapan,nhi,watergap
+173,-0.21138420495570223,Papua New Guinea Coast,nhi,watergap
+187,0.11371131677793887,Parnaiba,nhi,watergap
+139,-3.282639193320133e-4,Peninsula Malaysia,nhi,watergap
+147,0.02298418581420227,Pennar,nhi,watergap
+88,-0.010063427122020421,Persian Gulf Coast,nhi,watergap
+180,-0.07432915201803365,"Peru, Pacific Coast",nhi,watergap
+119,0.06469221611192093,Philippines,nhi,watergap
+92,0.05450309969380156,Plateau of Tibet Interior,nhi,watergap
+57,-0.043917711227400125,Po,nhi,watergap
+33,0.050982843200741756,Poland Coast,nhi,watergap
+93,-0.020513954406741104,"Red Sea, East Coast",nhi,watergap
+134,0.04559165123682959,Rfo Balsas,nhi,watergap
+131,0.0047159595030887985,Rfo Lerma,nhi,watergap
+132,0.05820511411861519,Rfo Verde,nhi,watergap
+62,-0.10838741829786533,Rh(ne,nhi,watergap
+32,-0.41867099161944993,Rhine,nhi,watergap
+179,0.15592150629288082,Rift Valley,nhi,watergap
+231,0.08991115587935752,Rio Grande River Basin,nhi,watergap
+9,0.6423613372278174,"Russia, Barents Sea Coast",nhi,watergap
+37,-0.005985026495957286,"Russia, South East Coast",nhi,watergap
+107,1.1121394024393079,Sabarmati,nhi,watergap
+205,-0.16637590453807619,Salinas Grandes,nhi,watergap
+127,-0.16581070477435775,Salween,nhi,watergap
+192,-0.1179387222269123,Sao Francisco,nhi,watergap
+23,0.3378975221473977,Saskatchewan - Nelson,nhi,watergap
+8,0.2870234958973738,"Scandinavia, North Coast",nhi,watergap
+36,-0.09373205713260506,Scheldt,nhi,watergap
+16,0.034916580851508894,Scotland,nhi,watergap
+46,-0.2355102477482201,Seine,nhi,watergap
+152,-0.1359487066675884,Senegal,nhi,watergap
+178,0.013077329668690739,Sepik,nhi,watergap
+170,0.08722482030649957,Shebelli - Juba,nhi,watergap
+3,0.09817416645866722,"Siberia, North Coast",nhi,watergap
+4,0.24548719787130738,"Siberia, West Coast",nhi,watergap
+98,-6.958005200833457e-4,Sinai Peninsula,nhi,watergap
+138,-0.06817516766448788,Sittang,nhi,watergap
+176,-0.2671414908522811,Solomon Islands,nhi,watergap
+198,-0.39166486676529694,"South Africa, South Coast",nhi,watergap
+204,0.030209148484381075,"South Africa, West Coast",nhi,watergap
+212,-0.1514992779042859,"South America, Colorado",nhi,watergap
+215,-0.1517906906194941,"South Argentina, South Atlantic Coast",nhi,watergap
+226,-0.1506389211945087,South Atlantic-Gulf Basin,nhi,watergap
+169,-0.3697991584519209,"South Chile, Pacific Coast",nhi,watergap
+112,-0.03229146177483057,South China Sea Coast,nhi,watergap
+185,-0.1583714202625236,South Pacific Islands,nhi,watergap
+135,0.43144553039640904,Southern Central America,nhi,watergap
+60,-0.16773286876161084,"Spain - Portugal, Atlantic Coast",nhi,watergap
+67,0.02854223723554637,"Spain, South and East Coast",nhi,watergap
+154,0.16230857877968638,Sri Lanka,nhi,watergap
+40,0.3742748634557063,St Lawrence,nhi,watergap
+164,-0.2885141697447537,Sulawesi,nhi,watergap
+163,-0.4614598757664847,Sumatra,nhi,watergap
+12,-0.24646506710958735,Sweden,nhi,watergap
+76,-0.13370959949278308,Syr Darya,nhi,watergap
+71,-0.0848443785208439,Tagus,nhi,watergap
+103,0.023221163128975007,Taiwan,nhi,watergap
+117,0.04479045487701002,Tapti,nhi,watergap
+85,0.22746885896662386,Tarim Interior,nhi,watergap
+211,-0.07266396252676513,Tasmania,nhi,watergap
+230,0.0027584147222558396,Tennessee River Basin,nhi,watergap
+225,-0.16228825543681275,Texas Gulf Coast Basin,nhi,watergap
+69,0.0014866664957444353,Tiber,nhi,watergap
+84,-0.19342692663060349,Tigris - Euphrates,nhi,watergap
+174,-0.37790981534711987,Tocantins,nhi,watergap
+220,0.09753557516952101,Upper Colorado River Basin,nhi,watergap
+218,0.5296476245363783,Upper Mississippi Basin,nhi,watergap
+38,-0.057346743576349245,Ural,nhi,watergap
+195,-0.5757666212866236,"Uruguay - Brazil, South Atlantic Coast",nhi,watergap
+126,-0.1835555805728823,"Viet Nam, Coast",nhi,watergap
+18,-0.038956624306681245,Volga,nhi,watergap
+160,0.1814926019541,Volta,nhi,watergap
+30,0.05533333741536268,Wisla,nhi,watergap
+108,-0.059921564162263755,Xun Jiang,nhi,watergap
+106,-0.5252512797073443,Yangtze,nhi,watergap
+118,0.026931109516131726,Yasai,nhi,watergap
+48,0.4072949952741996,Yenisey,nhi,watergap
+111,0.08285447864927238,Yucat?n Peninsula,nhi,watergap
+188,1.4170314408647708,Zambezi,nhi,watergap
+77,0.13176267877136974,"Ziya He, Interior",nhi,watergap

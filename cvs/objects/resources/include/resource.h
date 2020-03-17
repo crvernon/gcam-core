@@ -41,7 +41,7 @@
 /*! 
 * \file resource.h
 * \ingroup Objects
-* \brief The Resource and RenewableResource classes header file.
+* \brief The Resource, DepletableResource, FixedResource, and RenewableResource classes header file.
 * \author Sonny Kim
 */
 #include <xercesc/dom/DOMNode.hpp>
@@ -60,6 +60,12 @@ class SubResource;
 * \brief A class which defines a single resource containing multiple
 *        subresources, which can be of either depletable or renewable type.
 * \todo This class needs much more documentation.
+* \todo This class and AResource need refactoring and cleaning up. FixedResource
+*       should be removed. Resource is generic and may contain depletable or 
+*       renewable subresources. DepletableResource contains only depletable
+*       subresources, while RenewableResource contains only renewable subresources.
+*       RenewableResource should inherit from AResource and be moved to its own
+*       files.
 * \author Sonny Kim
 */
 class Resource: public AResource {
@@ -68,7 +74,8 @@ public:
     Resource();
     virtual ~Resource();
     static const std::string& getXMLNameStatic();
-    void XMLParse( const xercesc::DOMNode* aNode );
+    void XMLParse( const xercesc::DOMNode* node );
+    void toInputXML( std::ostream& aOut, Tabs* aTabs ) const;
     void toDebugXML( const int period, std::ostream& aOut, Tabs* aTabs ) const;
     const std::string& getName() const; 
     virtual void completeInit( const std::string& aRegionName, const IInfo* aRegionInfo );
@@ -79,6 +86,8 @@ public:
     void calcSupply( const std::string& aRegionName, const GDP* aGdp, const int aPeriod );
     virtual double getAnnualProd( const std::string& aRegionName, const int aPeriod ) const;
     virtual double getPrice( const int aPeriod ) const;
+    void dbOutput( const std::string& regname );
+    void csvOutputFile( const std::string& regname ); 
     virtual void accept( IVisitor* aVisitor, const int aPeriod ) const;
 protected:
 
@@ -117,8 +126,51 @@ protected:
                                        const xercesc::DOMNode* aNode );
     virtual const std::string& getXMLName() const;
     void setMarket( const std::string& aRegionName );
-    virtual void annualsupply( const std::string& aRegionName, int aPeriod, const GDP* aGdp, double aPrice );
-    void cumulsupply( const std::string& aRegionName, double aPrice, int aPeriod );
+    virtual void annualsupply( const std::string& aRegionName, int aPeriod, const GDP* aGdp, double aPrice, double aPrevPrice );
+    void cumulsupply( double aPrice, int aPeriod );
+private:
+    static const std::string XML_NAME; //!< node name for toXML methods
+};
+
+/*! 
+* \ingroup Objects
+* \brief A class which defines a DepletableResource object, which is a container for multiple Subresource objects.
+* \author Josh Lurz
+*/
+class DepletableResource: public Resource {
+public: 
+    static const std::string& getXMLNameStatic();
+protected:
+    
+    // Define data such that introspection utilities can process the data from this
+    // subclass together with the data members of the parent classes.
+    DEFINE_DATA_WITH_PARENT(
+        Resource
+    )
+    
+    const std::string& getXMLName() const;
+    bool XMLDerivedClassParse( const std::string& nodename, const xercesc::DOMNode* node );
+};
+
+/*! 
+* \ingroup Objects
+* \brief A class which defines a FixedResource object, which is a container for multiple Subresource objects.
+* \author Josh Lurz
+*/
+class FixedResource: public Resource {
+public: 
+
+    static const std::string& getXMLNameStatic();
+protected:
+    
+    // Define data such that introspection utilities can process the data from this
+    // subclass together with the data members of the parent classes.
+    DEFINE_DATA_WITH_PARENT(
+        Resource
+    )
+    
+    const std::string& getXMLName() const;
+    bool XMLDerivedClassParse( const std::string& nodename, const xercesc::DOMNode* node );
 };
 
 /*! 
@@ -130,7 +182,6 @@ class RenewableResource: public Resource {
 public: 
     RenewableResource();
     static const std::string& getXMLNameStatic();
-    virtual void completeInit( const std::string& aRegionName, const IInfo* aRegionInfo );
 protected:
     
     // Define data such that introspection utilities can process the data from this
@@ -145,9 +196,13 @@ protected:
         DEFINE_VARIABLE( ARRAY, "resourceCapacityFactor", mResourceCapacityFactor, objects::PeriodVector<double> )
     )
 
-    virtual bool XMLDerivedClassParse( const std::string& aNodeName, const xercesc::DOMNode* aNode );
+    bool XMLDerivedClassParse( const std::string& nodename, const xercesc::DOMNode* node );
     virtual const std::string& getXMLName() const;
-    virtual void annualsupply( const std::string& aRegionName, int aPeriod, const GDP* aGdp, double aPrice );
+    void completeInit( const std::string& aRegionName, const IInfo* aRegionInfo );
+    void annualsupply( const std::string& regionName, int per, const GDP* gdp, double price, double prev_price );
 };
 
 #endif // _RESOURCE_H_
+
+
+

@@ -125,17 +125,21 @@ bool NegativeEmissionsFinalDemand::XMLParse( const DOMNode* aNode ) {
     return true;
 }
 
+void NegativeEmissionsFinalDemand::toInputXML( ostream& aOut, Tabs* aTabs ) const {
+    XMLWriteOpeningTag( getXMLName(), aOut, aTabs, mName );
+    const Modeltime* modeltime = scenario->getModeltime();
+   
+    // write the xml for the class members.
+    XMLWriteElement( mPolicyName, "policy-name", aOut, aTabs );
+
+    XMLWriteClosingTag( getXMLName(), aOut, aTabs );
+}   
+
 void NegativeEmissionsFinalDemand::toDebugXML( const int aPeriod,
                                     ostream& aOut,
                                     Tabs* aTabs ) const
 {
-    XMLWriteOpeningTag( getXMLName(), aOut, aTabs, mName );
-    const Modeltime* modeltime = scenario->getModeltime();
-    
-    // write the xml for the class members.
-    XMLWriteElement( mPolicyName, "policy-name", aOut, aTabs );
-    
-    XMLWriteClosingTag( getXMLName(), aOut, aTabs );
+    toInputXML( aOut, aTabs );
 }
 
 void NegativeEmissionsFinalDemand::completeInit( const string& aRegionName,
@@ -218,5 +222,13 @@ void NegativeEmissionsFinalDemand::accept( IVisitor* aVisitor,
 {
     aVisitor->startVisitFinalDemand( this, aPeriod );
     aVisitor->endVisitFinalDemand( this, aPeriod );
+}
+
+//! Write sector output to database.
+void NegativeEmissionsFinalDemand::csvOutputFile( const string& aRegionName ) const {
+}
+
+//! Write MiniCAM style demand sector output to database.
+void NegativeEmissionsFinalDemand::dbOutput( const string& aRegionName ) const  {
 }
 

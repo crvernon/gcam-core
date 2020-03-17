@@ -63,10 +63,6 @@ class IInfo;
 class CachedMarket;
 class MarketDependencyFinder;
 class Value;
-namespace objects {
-    template<typename T>
-    class PeriodVector;
-}
 
 /*! 
  * \ingroup Objects
@@ -157,7 +153,7 @@ public:
     void setPrice( const std::string& goodName, const std::string& regionName, const double value,
                    const int period, bool aMustExist = true );
     void setPriceVector( const std::string& goodName, const std::string& regionName,
-                         const objects::PeriodVector<Value>& prices );
+                         const std::vector<double>& prices );
     void addToSupply( const std::string& goodName, const std::string& regionName, const Value& value,
                       const int period, bool aMustExist = true );
     void addToDemand( const std::string& goodName, const std::string& regionName, const Value& value,
@@ -170,6 +166,8 @@ public:
         const int period ) const;
 
     void init_to_last( const int period );
+    void dbOutput() const; 
+    void csvOutputFile( std::string marketsToPrint = "" ) const; 
     int resetToPriceMarket( const int aMarketNumber );
     void setMarketToSolve( const std::string& goodName, const std::string& regionName,
         const int period );
@@ -185,7 +183,8 @@ public:
     std::auto_ptr<CachedMarket> locateMarket( const std::string& aGoodName, const std::string& aRegionName,
                                                const int aPeriod ) const;
 
-   void accept( IVisitor* aVisitor, const int aPeriod ) const;
+    void csvSGMOutputFile( std::ostream& aFile, const int period ) const;
+    void accept( IVisitor* aVisitor, const int aPeriod ) const;
 
     std::vector<Market*> getMarketsToSolve( const int period ) const;
     static const std::string& getXMLNameStatic();

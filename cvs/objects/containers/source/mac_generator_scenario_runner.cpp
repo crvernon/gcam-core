@@ -54,6 +54,10 @@
 using namespace std;
 using namespace xercesc;
 
+extern void closeDB();
+extern void createMCvarid();
+extern ofstream outFile;
+
 /*! \brief Constructor.
 */
 MACGeneratorScenarioRunner::MACGeneratorScenarioRunner(){
@@ -127,7 +131,7 @@ bool MACGeneratorScenarioRunner::runScenarios( const int aSinglePeriod,
                                                   aPrintDebugging, aTimer );
 
     // Print the output now before it is overwritten.
-    mSingleScenario->printOutput( aTimer );
+    mSingleScenario->printOutput( aTimer, false );
 
     // Now calculate the abatement curves.
     if( mPolicyCostCalculator.get() ){
@@ -140,9 +144,18 @@ bool MACGeneratorScenarioRunner::runScenarios( const int aSinglePeriod,
 }
 
 //! Print the output.
-void MACGeneratorScenarioRunner::printOutput( Timer& timer ) const {
+void MACGeneratorScenarioRunner::printOutput( Timer& timer, const bool aCloseDB ) const {
     if( mPolicyCostCalculator.get() ){
         mPolicyCostCalculator->printOutput();
+    }
+    
+    static const bool printDB = Configuration::getInstance()->shouldWriteFile( "dbFileName" );
+    
+    // Close the database.
+    if( printDB && aCloseDB ){
+        createMCvarid();
+        closeDB();
+        outFile.close();
     }
 }
 

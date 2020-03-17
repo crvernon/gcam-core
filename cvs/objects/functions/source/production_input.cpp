@@ -89,6 +89,10 @@ bool ProductionInput::XMLDerivedClassParse( const string& nodeName, const DOMNod
     return false;
 }
 
+//! Output XML for derived class
+void ProductionInput::toInputXMLDerived( ostream& out, Tabs* tabs ) const {
+}
+
 //! Output debug info to XML for derived class
 void ProductionInput::toDebugXMLDerived( const int period, ostream& out, Tabs* tabs ) const {
 }

@@ -48,7 +48,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include <string>
 #include "util/base/include/inamed.h"
-#include "util/base/include/iparsable.h"
+#include "util/base/include/iround_trippable.h"
 #include "util/base/include/value.h"
 #include "util/base/include/data_definition_util.h"
 
@@ -56,7 +56,6 @@
 class GDP;
 class IInfo;
 class NonCO2Emissions;
-class Tabs;
 
 // Need to forward declare the subclasses as well.
 class GDPControl;
@@ -70,14 +69,15 @@ class ReadInControl;
  * \details The AEmissionsControl class describes a means of reducing emissions.
  * \author Kate Calvin
  */
-class AEmissionsControl: public INamed, public IParsable {
+class AEmissionsControl: public INamed, public IRoundTrippable {
 public:
     //! Virtual Destructor.
     virtual ~AEmissionsControl();
     //! Clone operator.
     virtual AEmissionsControl* clone() const = 0;
     
-    bool XMLParse( const xercesc::DOMNode* aNode );
+    void XMLParse( const xercesc::DOMNode* aNode );
+    void toInputXML( std::ostream& aOut, Tabs* aTabs ) const;
     void toDebugXML( const int aPeriod, std::ostream& aOut, Tabs* aTabs ) const;
     static const std::string& getXMLNameStatic();
     
@@ -137,6 +137,17 @@ protected:
      * \return Whether any node was parsed.
      */
     virtual bool XMLDerivedClassParse( const std::string& aNodeName, const xercesc::DOMNode* aCurrNode ) = 0;
+    
+    /*!
+     * \brief XML output stream for derived classes
+     * \details Function writes output due to any variables specific to derived
+     *          classes to XML
+     * \author Jim Naslund
+     * \param aOut reference to the output stream
+     * \param aTabs A tabs object responsible for printing the correct number of
+     *        tabs. 
+     */
+    virtual void toInputXMLDerived( std::ostream& aOut, Tabs* aTabs ) const = 0;
     
     /*!
      * \brief XML debug output stream for derived classes

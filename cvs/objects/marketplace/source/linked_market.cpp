@@ -55,10 +55,6 @@ mLinkedMarket( aLinkedMarket )
     mQuantityMult = 1.0;
 }
 
-void LinkedMarket::resetLinkedMarket( Market* aLinkedMarket ) {
-    mLinkedMarket = aLinkedMarket;
-}
-
 void LinkedMarket::toDebugXMLDerived( ostream& out, Tabs* tabs ) const {
 }
 

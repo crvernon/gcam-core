@@ -138,6 +138,9 @@ public:
 
     virtual bool XMLParse( const xercesc::DOMNode* aNode );
 
+    virtual void toInputXML( std::ostream& aOut,
+                             Tabs* aTabs ) const;
+
     virtual void accept( IVisitor* aVisitor,
                          const int aPeriod ) const;
 
@@ -147,8 +150,6 @@ public:
     virtual ICarbonCalc* getCarbonContentCalc() const;
         
 	virtual bool isUnmanagedLandLeaf( )  const;
-    
-    bool hasLandAllocationCalculated( const int aPeriod ) const;
 
 protected:
     
@@ -180,22 +181,12 @@ protected:
         
         DEFINE_VARIABLE( ARRAY, "parsed-landAllocation", mReadinLandAllocation, objects::PeriodVector<Value> ),
                             
-        //! Name of land constraint policy
-        DEFINE_VARIABLE( SIMPLE, "land-constraint-policy", mLandConstraintPolicy, std::string ),
-                            
         //! State value necessary to use Marketplace::addToDemand for CO2 emissions
-        DEFINE_VARIABLE( SIMPLE | STATE, "luc-state", mLastCalcCO2Value, Value ),
-
-        //! The name of a negative emissions policy which may scale back
-        //! carbon subsidies if there isn't a budget to support it
-        DEFINE_VARIABLE( SIMPLE, "negative-emiss-market", mNegEmissMarketName, std::string )
+        DEFINE_VARIABLE( SIMPLE | STATE, "luc-state", mLastCalcCO2Value, Value )
     )
 
     double getCarbonSubsidy( const std::string& aRegionName,
                            const int aPeriod ) const;
-    
-    double getLandConstraintCost( const std::string& aRegionName,
-                            const int aPeriod ) const;
 
     virtual bool XMLDerivedClassParse( const std::string& aNodeName,
                                        const xercesc::DOMNode* aCurr );

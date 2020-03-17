@@ -112,6 +112,11 @@ void NodeCarbonCalc::toDebugXML( const int aPeriod, ostream& aOut, Tabs* aTabs )
     XMLWriteClosingTag( getXMLNameStatic(), aOut, aTabs );
 }
 
+void NodeCarbonCalc::toInputXML( ostream& aOut, Tabs* aTabs ) const {
+    XMLWriteOpeningTag( getXMLNameStatic(), aOut, aTabs );
+    XMLWriteClosingTag( getXMLNameStatic(), aOut, aTabs );
+}
+
 void NodeCarbonCalc::startVisitNoEmissCarbonCalc( const NoEmissCarbonCalc* aNoEmissCarbonCalc, const int aPeriod ) {
     mCarbonCalcs.push_back( const_cast<NoEmissCarbonCalc*>( aNoEmissCarbonCalc ) );
 }
@@ -135,22 +140,6 @@ void NodeCarbonCalc::completeInit() {
     
     mIndHighToLow = mIndLowToHigh;
     reverse( mIndHighToLow.begin(), mIndHighToLow.end() );
-}
-
-/*!
- * \brief Initializations prior to calculating the given period.
- * \details Back out the previsouly calculated emissions from the saved future
- *          values in case we are re-running this model period.
- */
-void NodeCarbonCalc::initCalc( const int aPeriod ) {
-    bool shouldReverseCalc = false;
-    for( size_t i = 0; i < mCarbonCalcs.size(); ++i ) {
-        shouldReverseCalc |= mCarbonCalcs[ i ]->shouldReverseCalc( aPeriod );
-    }
-    
-    if( aPeriod > 0 && shouldReverseCalc ) {
-        calc( aPeriod, CarbonModelUtils::getEndYear(), ICarbonCalc::eReverseCalc );
-    }
 }
 
 /*!
@@ -291,7 +280,7 @@ void NodeCarbonCalc::calcLandUseHistory()
     mHasCalculatedHistoricEmiss = true;
 }
 
-void NodeCarbonCalc::calc( const int aPeriod, const int aEndYear, const ICarbonCalc::CarbonCalcMode aCalcMode ) {
+void NodeCarbonCalc::calc( const int aPeriod, const int aEndYear, const bool aStoreFullEmiss ) {
     const Modeltime* modeltime = scenario->getModeltime();
 
     // If this is a land-use history year...
@@ -307,11 +296,15 @@ void NodeCarbonCalc::calc( const int aPeriod, const int aEndYear, const ICarbonC
         int year = prevModelYear + 1;
 
         // clear the previously calculated emissions first
-        vector<YearVector<double>*> currEmissionsAbove( mCarbonCalcs.size() );
-        vector<YearVector<double>*> currEmissionsBelow( mCarbonCalcs.size() );
+        vector<YearVector<Value>*> currEmissionsAbove( mCarbonCalcs.size() );
+        vector<YearVector<Value>*> currEmissionsBelow( mCarbonCalcs.size() );
         for( size_t i = 0; i < mCarbonCalcs.size(); ++i ) {
-            currEmissionsAbove[ i ] = new YearVector<double>( year, aEndYear, 0.0 );
-            currEmissionsBelow[ i ] = new YearVector<double>( year, aEndYear, 0.0 );
+            currEmissionsAbove[ i ] = mCarbonCalcs[ i ]->mStoredEmissionsAbove[ aPeriod ];
+            currEmissionsBelow[ i ] = mCarbonCalcs[ i ]->mStoredEmissionsBelow[ aPeriod ];
+            for( year = prevModelYear + 1; year <= aEndYear; ++year ) {
+                (*currEmissionsAbove[ i ])[ year ] = 0.0;
+                (*currEmissionsBelow[ i ])[ year ] = 0.0;
+            }
         }
         
         // stash carbon densities for quick access
@@ -329,13 +322,8 @@ void NodeCarbonCalc::calc( const int aPeriod, const int aEndYear, const ICarbonC
         vector<double> diffLandByTimestep( mCarbonCalcs.size() );
         double prevLandTotal = 0;
         for( size_t i = 0; i < mCarbonCalcs.size(); ++i ) {
-            // we need to be careful about accessing the land allocation from a previous timestep
-            // when we are intending to calculate in eReverseCalc as the previous timestep may have
-            // already calculated in eStoreResults
             double land = aPeriod == 1 ? mCarbonCalcs[ i ]->mLandUseHistory->getAllocation( prevModelYear ) :
-                aCalcMode != ICarbonCalc::eReverseCalc ?
-                    mCarbonCalcs[ i ]->mLandLeaf->getLandAllocation( mCarbonCalcs[ i ]->mLandLeaf->getName(), aPeriod - 1 ) :
-                    mCarbonCalcs[ i ]->mSavedLandAllocation[ aPeriod - 1 ];
+                mCarbonCalcs[ i ]->mLandLeaf->getLandAllocation( mCarbonCalcs[ i ]->mLandLeaf->getName(), aPeriod - 1 );
             prevLandByTimestep[ i ] = land;
             prevLandTotal += land;
         }
@@ -388,14 +376,7 @@ void NodeCarbonCalc::calc( const int aPeriod, const int aEndYear, const ICarbonC
             else {
                 // Calculate the carbon that will be moved out of this land type by
                 // computing the average from the current carbon stock.
-                
-                // we need to be careful about accessing the carbon stock from a previous timestep
-                // when we are intending to calculate in eReverseCalc as the previous timestep may have
-                // already calculated in eStoreResults
-                double currCarbonMovedByYear = -1 * ( aCalcMode == ICarbonCalc::eReverseCalc ?
-                                                        mCarbonCalcs[ i ]->mSavedCarbonStock[ aPeriod ] :
-                                                        mCarbonCalcs[ i ]->mCarbonStock[ prevModelYear ] )
-                    * diffLandByTimestep[ i ] / prevLandByTimestep[ i ] / modelTimestep;
+                double currCarbonMovedByYear = -1 * mCarbonCalcs[ i ]->mCarbonStock[ prevModelYear ] * diffLandByTimestep[ i ] / prevLandByTimestep[ i ] / modelTimestep;
                 totalInternalCarbonAboveMovedByYear += currCarbonMovedByYear;
                 internalCarbonAboveMovedByYear[ i ] = currCarbonMovedByYear;
                 totalInternalCarbonBelowMovedByYear -= diffLandFromInternalByYear[ i ] * belowGroundCarbonDensity[ i ];
@@ -413,29 +394,20 @@ void NodeCarbonCalc::calc( const int aPeriod, const int aEndYear, const ICarbonC
         for( year = prevModelYear + 1; year <= modelYear; ++year ) {
             // Initialize the carbon stock in this year to the carbon stock of the previous year minus
             // any emissions that have already been allocated in this year from earlier year land decisions.
-            if( aCalcMode != ICarbonCalc::eReverseCalc ) {
-                for( size_t i = 0; i < mCarbonCalcs.size(); ++i ) {
-                    mCarbonCalcs[ i ]->mCarbonStock[ year ] = mCarbonCalcs[ i ]->mCarbonStock[ year - 1 ] -
-                        ( mCarbonCalcs[ i ]->mTotalEmissionsAbove[ year ] + (*currEmissionsAbove[ i ])[ year ] );
-                }
+            for( size_t i = 0; i < mCarbonCalcs.size(); ++i ) {
+                mCarbonCalcs[ i ]->mCarbonStock[ year ] = mCarbonCalcs[ i ]->mCarbonStock[ year - 1 ] -
+                    ( mCarbonCalcs[ i ]->mTotalEmissionsAbove[ year ] + (*currEmissionsAbove[ i ])[ year ] );
             }
             // Calculate emissions from changes in land that was removed/added from outside of this node.
             for( size_t i = 0; i < mCarbonCalcs.size(); ++i ) {
                 currLand[ i ] = prevLand[ i ] + diffLandFromExternalByYear[ i ];
                 double carbonDiffBelowPerYear = -1 * diffLandFromExternalByYear[ i ] * belowGroundCarbonDensity[ i ];
                 double prevEmiss = (*currEmissionsAbove[ i ])[ year ];
-                // we need to be careful about accessing the carbon stock from a previous timestep
-                // when we are intending to calculate in eReverseCalc as the previous timestep may have
-                // already calculated in eStoreResults
-                mCarbonCalcs[ i ]->calcAboveGroundCarbonEmission( aCalcMode == ICarbonCalc::eReverseCalc && (year - 1) == prevModelYear ?
-                                                                        mCarbonCalcs[ i ]->mSavedCarbonStock[ aPeriod ] :
-                                                                        mCarbonCalcs[ i ]->mCarbonStock[ year - 1 ],
-                                                                  prevLand[ i ], currLand[ i ], aboveGroundCarbonDensity[ i ], year, aEndYear,
+                mCarbonCalcs[ i ]->calcAboveGroundCarbonEmission( mCarbonCalcs[ i ]->mCarbonStock[ year - 1 ], prevLand[ i ],
+                                                                  currLand[ i ], aboveGroundCarbonDensity[ i ], year, aEndYear,
                                                                   *currEmissionsAbove[ i ] );
                 mCarbonCalcs[ i ]->calcBelowGroundCarbonEmission( carbonDiffBelowPerYear, year, aEndYear, *currEmissionsBelow[ i ] );
-                if( aCalcMode != ICarbonCalc::eReverseCalc ) {
-                    mCarbonCalcs[ i ]->mCarbonStock[ year ] -= (*currEmissionsAbove[ i ])[ year ] - prevEmiss;
-                }
+                mCarbonCalcs[ i ]->mCarbonStock[ year ] -= (*currEmissionsAbove[ i ])[ year ] - prevEmiss;
             }
             // Calculate emissions from changes in land internal to this node.  Carbon can move internally
             // to the node with out emissions however if there is a difference in carbon densities then
@@ -457,16 +429,12 @@ void NodeCarbonCalc::calc( const int aPeriod, const int aEndYear, const ICarbonC
                     mCarbonCalcs[ i ]->calcBelowGroundCarbonEmission( carbonDiffBelow, year, aEndYear, *currEmissionsBelow[ i ] );
                     // Adjust carbon stock to include the carbon being moved in minus any emissions because of moving
                     // the carbon.
-                    if( aCalcMode != ICarbonCalc::eReverseCalc ) {
-                        mCarbonCalcs[ i ]->mCarbonStock[ year ] += currCarbonMove - ( (*currEmissionsAbove[ i ])[ year ] - emissBeforeMove );
-                    }
+                    mCarbonCalcs[ i ]->mCarbonStock[ year ] += currCarbonMove - ( (*currEmissionsAbove[ i ])[ year ] - emissBeforeMove );
                 }
                 else {
                     // Remove the carbon that is changing land type from the carbon stock without
                     // emissions.
-                    if( aCalcMode != ICarbonCalc::eReverseCalc ) {
-                        mCarbonCalcs[ i ]->mCarbonStock[ year ] -= internalCarbonAboveMovedByYear[ i ];
-                    }
+                    mCarbonCalcs[ i ]->mCarbonStock[ year ] -= internalCarbonAboveMovedByYear[ i ];
                 }
                 prevLand[ i ] = currLand[ i ];
             }
@@ -474,7 +442,7 @@ void NodeCarbonCalc::calc( const int aPeriod, const int aEndYear, const ICarbonC
 
         // add current emissions to the total
         for( size_t i = 0; i < mCarbonCalcs.size(); ++i ) {
-            if( aCalcMode == ICarbonCalc::eStoreResults ) {
+            if( aStoreFullEmiss ) {
                 for( year = prevModelYear + 1; year <= aEndYear; ++year ) {
                     mCarbonCalcs[ i ]->mTotalEmissionsAbove[ year ] += (*currEmissionsAbove[ i ])[ year ];
                     mCarbonCalcs[ i ]->mTotalEmissionsBelow[ year ] += (*currEmissionsBelow[ i ])[ year ];
@@ -482,22 +450,6 @@ void NodeCarbonCalc::calc( const int aPeriod, const int aEndYear, const ICarbonC
                         mCarbonCalcs[ i ]->mTotalEmissionsBelow[ year ];
                 }
             }
-            else if( aCalcMode == ICarbonCalc::eReverseCalc ) {
-                for( year = prevModelYear + 1; year <= aEndYear; ++year ) {
-                    mCarbonCalcs[ i ]->mTotalEmissionsAbove[ year ] -= (*currEmissionsAbove[ i ])[ year ];
-                    mCarbonCalcs[ i ]->mTotalEmissionsBelow[ year ] -= (*currEmissionsBelow[ i ])[ year ];
-                    mCarbonCalcs[ i ]->mTotalEmissions[ year ] = mCarbonCalcs[ i ]->mTotalEmissionsAbove[ year ] +
-                        mCarbonCalcs[ i ]->mTotalEmissionsBelow[ year ];
-                }
-            }
-            else if( aCalcMode == ICarbonCalc::eReturnTotal ) {
-                mCarbonCalcs[ i ]->mStoredEmissions = mCarbonCalcs[ i ]->mTotalEmissionsAbove[ aEndYear ] +
-                    mCarbonCalcs[ i ]->mTotalEmissionsBelow[ aEndYear ] +
-                    (*currEmissionsAbove[ i ])[ aEndYear ] + (*currEmissionsBelow[ i ])[ aEndYear ];
-            }
-            // clean up memory now that we are done with it
-            delete currEmissionsAbove[ i ];
-            delete currEmissionsBelow[ i ];
         }
     }
 }

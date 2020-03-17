@@ -47,6 +47,7 @@
 */
 
 #include <memory>
+#include "util/base/include/iround_trippable.h"
 #include "util/base/include/ivisitable.h"
 
 // forward declare headers
@@ -60,11 +61,12 @@ class Tabs;
 * \brief A class which stores population information for a more specific age range
 */
 
-class AgeCohort: public IVisitable {
+class AgeCohort: public IRoundTrippable, IVisitable {
 public:
     AgeCohort();
     ~AgeCohort();
     void XMLParse( const xercesc::DOMNode* node );
+    void toInputXML( std::ostream& out, Tabs* tabs ) const;
     void toDebugXML( std::ostream& out, Tabs* tabs ) const;
     void completeInit();
     void initCalc();

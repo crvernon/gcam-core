@@ -69,7 +69,10 @@ public:
 
     virtual void setUnmanagedLandProfitRate( const std::string& aRegionName,
                                              double aAverageProfitRate,
-                                             const int aPeriod );
+                                             const int aPeriod ); 
+
+    virtual void toInputXML( std::ostream& aOut,
+                             Tabs* aTabs ) const;
     
     virtual void setProfitRate( const std::string& aRegionName,
                                    const std::string& aProductName,
