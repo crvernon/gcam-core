@@ -72,6 +72,9 @@ public:
     virtual ~NegativeEmissionsFinalDemand();
 
     virtual bool XMLParse( const xercesc::DOMNode* aNode );
+
+    virtual void toInputXML( std::ostream& aOut,
+                             Tabs* aTabs ) const;
     
     virtual void toDebugXML( const int aPeriod,
                              std::ostream& aOut,
@@ -94,6 +97,10 @@ public:
 
     virtual double getWeightedEnergyPrice( const std::string& aRegionName,
                                            const int aPeriod ) const;
+
+    virtual void csvOutputFile( const std::string& aRegionName ) const;
+
+    virtual void dbOutput( const std::string& aRegionName ) const;
 
     virtual void accept( IVisitor* aVisitor, const int aPeriod ) const;
 protected:

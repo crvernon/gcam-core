@@ -98,6 +98,7 @@ void NonCO2Emissions::copy( const NonCO2Emissions& aOther ) {
     AGHG::copy( aOther );
     
     mEmissionsCoef = aOther.mEmissionsCoef;
+    mAdjustedEmissCoef = aOther.mAdjustedEmissCoef;
     mGDP = aOther.mGDP;
     
     // Deep copy the auto_ptr
@@ -141,6 +142,7 @@ void NonCO2Emissions::copyGHGParameters( const AGHG* aPrevGHG ){
     if( !mEmissionsCoef.isInited() ) {
         mEmissionsCoef = prevComplexGHG->mEmissionsCoef;
     }
+    mAdjustedEmissCoef = prevComplexGHG->mAdjustedEmissCoef;
     
     mGDP = prevComplexGHG->mGDP;
     
@@ -204,10 +206,22 @@ bool NonCO2Emissions::XMLDerivedClassParse( const string& aNodeName, const DOMNo
     return true;
 }
 
+
+void NonCO2Emissions::toInputXMLDerived( ostream& aOut, Tabs* aTabs ) const {
+    XMLWriteElement( mEmissionsCoef, "emiss-coef", aOut, aTabs );
+    XMLWriteElementCheckDefault( mInputEmissions, "input-emissions", aOut, aTabs, Value() );
+    
+    XMLWriteElement( "", mEmissionsDriver->getXMLName(), aOut, aTabs );
+    
+    for ( CControlIterator controlIt = mEmissionsControls.begin(); controlIt != mEmissionsControls.end(); ++controlIt ) {
+        (*controlIt)->toInputXML( aOut, aTabs );
+    }
+}
+
 void NonCO2Emissions::toDebugXMLDerived( const int aPeriod, ostream& aOut, Tabs* aTabs ) const {
     XMLWriteElement( mEmissionsCoef, "emiss-coef", aOut, aTabs );
     XMLWriteElement( mInputEmissions, "input-emissions", aOut, aTabs );
-    XMLWriteElement( mAdjustedEmissCoef [ aPeriod ], "control-adjusted-emiss-coef", aOut, aTabs );
+    XMLWriteElement( mAdjustedEmissCoef[ aPeriod ], "control-adjusted-emiss-coef", aOut, aTabs );
     
     XMLWriteElement( "", mEmissionsDriver->getXMLName(), aOut, aTabs );
     
@@ -252,9 +266,10 @@ void NonCO2Emissions::initCalc( const string& aRegionName, const IInfo* aTechInf
         (*controlIt)->initCalc( aRegionName, aTechInfo, this, aPeriod );
     }
 
+    const bool isTechOperating = aTechInfo->getBoolean( "is-tech-operating", true );
     // Ensure the user set an emissions coefficient in the input, either by reading it in, copying it from the previous period
     // or reading in the emissions
-    if( !mEmissionsCoef.isInited() && !mShouldCalibrateEmissCoef ){
+    if( !mEmissionsCoef.isInited() && !mShouldCalibrateEmissCoef && isTechOperating ){
         ILogger& mainLog = ILogger::getLogger( "main_log" );
         mainLog.setLevel( ILogger::WARNING );
         mainLog << "No emissions coefficient set for " << getName() << " in " << aRegionName << " in period " << aPeriod << endl;
@@ -262,7 +277,7 @@ void NonCO2Emissions::initCalc( const string& aRegionName, const IInfo* aTechInf
     }
     
     
-    if ( !mEmissionsDriver.get() ) {
+    if ( isTechOperating && !mEmissionsDriver.get() ) {
         ILogger& mainLog = ILogger::getLogger( "main_log" );
         mainLog.setLevel( ILogger::ERROR );
         mainLog << "No emissions driver set for " << getName()
@@ -375,7 +390,7 @@ void NonCO2Emissions::calcEmission( const string& aRegionName,
     
     // Stash actual emissions coefficient including impact of any controls. Needed by control
     // objects that apply reductions relative to this emission coefficient value
-    mAdjustedEmissCoef[ aPeriod ]  = emissDriver > 0 ? totalEmissions / emissDriver : 0;
+    mAdjustedEmissCoef[ aPeriod ] = emissDriver > 0 ? totalEmissions / emissDriver : 0;
     
     addEmissionsToMarket( aRegionName, aPeriod );
 }
@@ -416,7 +431,7 @@ double NonCO2Emissions::getAdjustedEmissCoef( const int aPeriod ) const
      * \pre The adjusted emissions coefficient has been calculated for this period.
      */
     assert( mAdjustedEmissCoef[ aPeriod ].isInited() );
-    
+
     return mAdjustedEmissCoef[ aPeriod ];
 }
 

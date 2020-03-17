@@ -48,6 +48,7 @@
 
 #include "util/base/include/value.h"
 #include "util/base/include/iparsable.h"
+#include "util/base/include/iround_trippable.h"
 
 class Scenario;
 class IClimateModel;
@@ -72,6 +73,7 @@ class IClimateModel;
  */
 class IModelFeedbackCalc : public INamed,
                            public IParsable,
+                           public IRoundTrippable,
                            private boost::noncopyable
 {
 public:

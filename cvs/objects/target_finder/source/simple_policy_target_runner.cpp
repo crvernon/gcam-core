@@ -65,6 +65,12 @@
 using namespace std;
 using namespace xercesc;
 
+extern void closeDB();
+extern ofstream outFile;
+extern void createMCvarid();
+
+class Curve;
+
 //! Constructor that initializes needed variables
 SimplePolicyTargetRunner::SimplePolicyTargetRunner()
 : mLowerBound( new PointSetCurve ),
@@ -266,7 +272,7 @@ bool SimplePolicyTargetRunner::runScenarios( const int aSingleScenario,
                 << bisecter.getIterations() << " iterations." << endl;
     }
 
-    mSingleScenario->printOutput( timer );
+    mSingleScenario->printOutput( timer, false );
 
     // Now calculate the abatement curves.
     if( mPolicyCostCalculator.get() ){
@@ -281,7 +287,7 @@ bool SimplePolicyTargetRunner::runScenarios( const int aSingleScenario,
 * \param aTimer Scenario timer.
 * \param aCloseDB Whether to close the Access database when complete.
 */
-void SimplePolicyTargetRunner::printOutput( Timer& timer ) const {
+void SimplePolicyTargetRunner::printOutput( Timer& timer, const bool aCloseDB ) const {
     if( mPolicyCostCalculator.get() ){
         mPolicyCostCalculator->printOutput();
     }
@@ -290,7 +296,16 @@ void SimplePolicyTargetRunner::printOutput( Timer& timer ) const {
     // automatically be closed.
     AutoOutputFile out( "sPolicyOutputFileName", "sPolicyFinalEmissionsCurve.xml" );
     Tabs tabs;
-    mInterpolatedCurve->outputAsXMLDerived( *out, &tabs );
+    mInterpolatedCurve->toInputXMLDerived( *out, &tabs );
+
+    static const bool printDB = Configuration::getInstance()->shouldWriteFile( "dbFileName" );
+    
+    // Close the database.
+    if( printDB && aCloseDB ){
+        createMCvarid();
+        closeDB();
+        outFile.close();
+    }
 }
 
 void SimplePolicyTargetRunner::cleanup() {

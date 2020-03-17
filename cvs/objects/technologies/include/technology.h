@@ -55,6 +55,7 @@
 #include "util/base/include/ivisitable.h"
 #include "util/base/include/value.h"
 #include "functions/include/ifunction.h" // For TechChange struct.
+#include "util/base/include/iround_trippable.h"
 #include "technologies/include/itechnology.h"
 #include "util/base/include/time_vector.h"
 
@@ -152,6 +153,7 @@ class Technology: public ITechnology
     // interfaces.
     friend class XMLDBOutputter;
     friend class MarginalProfitCalculator;
+    friend class IndirectEmissionsCalculator;
     friend class EnergyBalanceTable;
 public:
     Technology( const std::string& aName, const int aYear );
@@ -164,8 +166,9 @@ public:
     virtual bool isSameType( const std::string& aType ) const;
 
     bool XMLParse( const xercesc::DOMNode* tempnode );
+    void toInputXML( std::ostream& out, Tabs* tabs ) const;
     void toDebugXML( const int period, std::ostream& out, Tabs* tabs ) const;
-
+    virtual void toInputXMLForRestart( std::ostream& out, Tabs* tabs ) const;
     static const std::string& getXMLVintageNameStatic();
     
     virtual const std::string& getXMLName() const = 0;
@@ -203,6 +206,8 @@ public:
 
     double getCost( const int aPeriod ) const;
 
+    const std::map<std::string,double> getEmissions( const std::string& aGoodName, const int aPeriod ) const;
+
     const std::string& getName() const;
 
     void setShareWeight( double shareWeightValue );
@@ -238,8 +243,10 @@ public:
     double getEnergyInput( const int aPeriod ) const;
 
     const std::vector<std::string> getGHGNames() const;
+ 
+    double getEmissionsByGas( const std::string& aGasName, const int aPeriod ) const;
 
-    virtual double getFixedOutput( const std::string& aRegionName,
+    double getFixedOutput( const std::string& aRegionName,
                            const std::string& aSectorName,
                            const bool aHasRequiredInput,
                            const std::string& aRequiredInput,
@@ -268,11 +275,11 @@ public:
     
     virtual bool isOperating( const int aPeriod ) const;
 
+    const std::map<std::string, double> getFuelMap( const int aPeriod ) const;
+
     virtual void accept( IVisitor* aVisitor, const int aPeriod ) const;
     
     virtual void doInterpolations( const Technology* aPrevTech, const Technology* aNextTech );
-    
-    virtual void initTechVintageVector();
 protected:
     
     // Define data such that introspection utilities can process the data from this
@@ -313,7 +320,7 @@ protected:
          * \note calcCost must be called in an iteration before this value is valid.
          * \sa Technology::calcCost
          */
-        DEFINE_VARIABLE( ARRAY | STATE, "cost", mCosts, objects::TechVintageVector<Value> ),
+        DEFINE_VARIABLE( ARRAY | STATE, "cost", mCosts, objects::PeriodVector<Value> ),
 
         //! A map of a keyword to its keyword group
         DEFINE_VARIABLE( SIMPLE, "keyword", mKeywordMap, std::map<std::string, std::string> ),
@@ -360,7 +367,11 @@ protected:
 
     static double getFixedOutputDefault();
 
-    virtual void setProductionState( const int aPeriod );
+    void setProductionState( const int aPeriod );
+
+    double getMarginalProfit( const std::string& aRegionName,
+                              const std::string& aSectorName,
+                              const int aPeriod ) const;
 
     bool hasInput( const std::string& aInput ) const;
     
@@ -368,7 +379,7 @@ protected:
                                       const std::string& aSectorName,
                                       const int aPeriod ) const;
 
-    virtual double getMarginalRevenue( const std::string& aRegionName,
+    double getMarginalRevenue( const std::string& aRegionName,
                                const std::string& aSectorName,
                                const int aPeriod ) const;
 
@@ -386,13 +397,13 @@ protected:
     virtual const IFunction* getProductionFunction() const;
 
     virtual bool XMLDerivedClassParse( const std::string& nodeName, const xercesc::DOMNode* curr ) = 0;
+    virtual void toInputXMLDerived( std::ostream& out, Tabs* tabs ) const = 0;
     virtual void toDebugXMLDerived( const int period, std::ostream& out, Tabs* tabs ) const = 0;
     virtual void acceptDerived( IVisitor* aVisitor, const int aPeriod ) const;
 
     virtual const IInfo* getTechInfo() const;
     int calcDefaultLifetime() const;
     void copy( const Technology& techIn );
-    
 private:
     void init();
     void clear();

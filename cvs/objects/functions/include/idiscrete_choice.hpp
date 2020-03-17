@@ -46,9 +46,8 @@
 #include <boost/core/noncopyable.hpp>
 
 #include "util/base/include/iparsable.h"
+#include "util/base/include/iround_trippable.h"
 #include "util/base/include/data_definition_util.h"
-
-class Tabs;
 
 // Need to forward declare the subclasses as well.
 class RelativeCostLogit;
@@ -71,7 +70,7 @@ class AbsoluteCostLogit;
  *       The sectors and and subsectors are currently not using this and instead
  *       are calculating a straight average cost.
  */
-class IDiscreteChoice : public IParsable, private boost::noncopyable {
+class IDiscreteChoice : public IParsable, public IRoundTrippable, private boost::noncopyable {
 public:
     /*!
      * \brief Constructor.

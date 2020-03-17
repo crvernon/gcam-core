@@ -60,6 +60,7 @@ class SimpleExpectedProfitCalculator: public IExpectedProfitRateCalculator
 public:
     SimpleExpectedProfitCalculator();
     static const std::string& getXMLNameStatic();
+    void toInputXML( std::ostream& aOut, Tabs* aTabs ) const;
     void toDebugXML( const int aPeriod, std::ostream& aOut, Tabs* aTabs ) const;
     
     double calcSectorExpectedProfitRate( const std::vector<IInvestable*>& aInvestables,

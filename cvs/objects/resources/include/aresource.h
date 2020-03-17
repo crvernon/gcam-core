@@ -53,11 +53,16 @@
 class Tabs;
 class GDP;
 class IInfo;
+class IOutput;
+class AGHG;
 
 // Need to forward declare the subclasses as well.
 class Resource;
+class DepletableResource;
+class FixedResource;
 class RenewableResource;
 class UnlimitedResource;
+class DepletingFixedResource;
 
 /*! 
 * \ingroup Objects
@@ -71,6 +76,9 @@ public:
     virtual ~AResource();
 
     virtual void XMLParse( const xercesc::DOMNode* aNode ) = 0;
+
+    virtual void toInputXML( std::ostream& aOut,
+                             Tabs* aTabs ) const = 0;
 
     virtual void toDebugXML( const int aPeriod,
                              std::ostream& aOut,
@@ -95,6 +103,10 @@ public:
                                   const int aPeriod ) const = 0;
 
     virtual double getPrice( const int aPeriod ) const = 0;
+    
+    virtual void dbOutput( const std::string& aRegionName ) = 0;
+
+    virtual void csvOutputFile( const std::string& aRegionName ) = 0;
 
     virtual void accept( IVisitor* aVisitor,
                          const int aPeriod ) const = 0;
@@ -106,7 +118,8 @@ protected:
         /* Declare all subclasses of AResource to allow automatic traversal of the
          * hierarchy under introspection.
          */
-        DEFINE_SUBCLASS_FAMILY( AResource, Resource, RenewableResource, UnlimitedResource ),
+        DEFINE_SUBCLASS_FAMILY( AResource, Resource, DepletableResource, FixedResource,
+                                RenewableResource, UnlimitedResource, DepletingFixedResource ),
 
         //! Resource name.
         DEFINE_VARIABLE( SIMPLE, "name", mName, std::string ),
@@ -121,7 +134,13 @@ protected:
         DEFINE_VARIABLE( SIMPLE, "market", mMarket, std::string ),
 
         //! A map of a keyword to its keyword group
-        DEFINE_VARIABLE( SIMPLE, "keyword", mKeywordMap, std::map<std::string, std::string> )
+        DEFINE_VARIABLE( SIMPLE, "keyword", mKeywordMap, std::map<std::string, std::string> ),
+
+        //! Vector of output objects representing the outputs of the technology.
+        DEFINE_VARIABLE( CONTAINER, "output", mOutputs, std::vector<IOutput*> ),
+
+        //! Suite of greenhouse gases
+        DEFINE_VARIABLE( CONTAINER, "ghg", mGHG, std::vector<AGHG*> )
     )
 };
 

@@ -56,9 +56,6 @@
 #include "containers/include/iinfo.h"
 #include "util/base/include/ivisitor.h"
 #include "sectors/include/sector_utils.h"
-#include "technologies/include/itechnology_container.h"
-#include "technologies/include/technology_container.h"
-#include "technologies/include/itechnology.h"
 
 using namespace std;
 using namespace xercesc;
@@ -72,8 +69,7 @@ mAnnualProd( Value( 0.0 ) ),
 mCumulProd( Value( 0.0 ) ),
 mCumulativeTechChange( 1.0 ),
 mEffectivePrice( Value( -1.0 ) ),
-mCalProduction( -1.0 ),
-mTechnology( 0 )
+mCalProduction( -1.0 )
 {
 }
 
@@ -82,20 +78,18 @@ SubResource::~SubResource() {
     for ( vector<Grade*>::iterator outerIter = mGrade.begin(); outerIter != mGrade.end(); outerIter++ ) {
         delete *outerIter;
     }
-    
-    delete mTechnology;
 }
 
 //! Initialize member variables from xml data
-void SubResource::XMLParse( const DOMNode* aNode ){
+void SubResource::XMLParse( const DOMNode* node ){  
     // make sure we were passed a valid node.
-    assert( aNode );
+    assert( node );
 
     // get the name attribute.
-    mName = XMLHelper<string>::getAttr( aNode, "name" );
+    mName = XMLHelper<string>::getAttr( node, "name" );
     
     // get all child nodes.
-    DOMNodeList* nodeList = aNode->getChildNodes();
+    DOMNodeList* nodeList = node->getChildNodes();
     const Modeltime* modeltime = scenario->getModeltime();
 
     // loop through the child nodes.
@@ -115,27 +109,26 @@ void SubResource::XMLParse( const DOMNode* aNode ){
         else if( nodeName == "techChange" ){
             XMLHelper<Value>::insertValueIntoVector( curr, mTechChange, modeltime );
         }
+        else if( nodeName == "environCost" ){
+            XMLHelper<Value>::insertValueIntoVector( curr, mEnvironCost, modeltime );
+        }
+        else if( nodeName == "severanceTax" ){
+            XMLHelper<Value>::insertValueIntoVector( curr, mSeveranceTax, modeltime );
+        }
         else if( nodeName == "cal-production" ){
             XMLHelper<double>::insertValueIntoVector( curr, mCalProduction, modeltime );
         }
         else if( nodeName == "price-adder" ){
             XMLHelper<Value>::insertValueIntoVector( curr, mPriceAdder, modeltime );
         }
-        else if( TechnologyContainer::hasTechnologyType( nodeName ) ) {
-            parseSingleNode( curr, mTechnology, new TechnologyContainer() );
-        }
         else if( !XMLDerivedClassParse( nodeName, curr ) ){
             ILogger& mainLog = ILogger::getLogger( "main_log" );
             mainLog.setLevel( ILogger::WARNING );
             mainLog << "Unrecognized text string: " << nodeName 
-                    << " found while parsing " << getXMLName() << "." << endl;
+                << " found while parsing " << getXMLName() << "." << endl;
         }
     }
 
-}
-
-bool SubResource::XMLDerivedClassParse( const string& aNodeName, const DOMNode* aNode ) {
-    return false;
 }
 
 /*! \brief Complete the initialization
@@ -145,8 +138,7 @@ bool SubResource::XMLDerivedClassParse( const string& aNodeName, const DOMNode* 
 * \author Josh Lurz, Sonny Kim
 * \warning markets are not necessarily set when completeInit is called
 */
-void SubResource::completeInit( const std::string& aRegionName, const std::string& aResourceName,
-                                const IInfo* aResourceInfo ) {
+void SubResource::completeInit( const IInfo* aResourceInfo ) {
     mSubresourceInfo.reset( InfoFactory::constructInfo( aResourceInfo, mName ) ); 
     // update the available resource for period 0
     // this function must be called after all the grades have been parsed and nograde set
@@ -156,16 +148,6 @@ void SubResource::completeInit( const std::string& aRegionName, const std::strin
     for( vector<Grade*>::iterator gradeIter = mGrade.begin(); gradeIter != mGrade.end(); gradeIter++ ) {
         ( *gradeIter )->completeInit( mSubresourceInfo.get() );
     }
-    
-    if( !mTechnology ) {
-        ILogger& mainLog = ILogger::getLogger( "main_log" );
-        mainLog.setLevel( ILogger::SEVERE );
-        mainLog << "Missing technology in " << getXMLName() << ": "
-                << aRegionName << ", " << aResourceName << ", " << mName << endl;
-        abort();
-    } else {
-        mTechnology->completeInit( aRegionName, aResourceName, mName, mSubresourceInfo.get(), 0 );
-    }
 
     // Interpolate and initialized exogenous resource variables created dynamically.
     const Modeltime* modeltime = scenario->getModeltime();
@@ -174,6 +156,12 @@ void SubResource::completeInit( const std::string& aRegionName, const std::strin
     const int FinalCalPer = modeltime->getFinalCalibrationPeriod();
     if( !mTechChange[ FinalCalPer ].isInited() ) {
         mTechChange[ FinalCalPer ] = 0;
+    }
+    if( !mEnvironCost[ FinalCalPer ].isInited() ) {
+        mEnvironCost[ FinalCalPer ] = 0;
+    }
+    if( !mSeveranceTax[ FinalCalPer ].isInited() ) {
+        mSeveranceTax[ FinalCalPer ] = 0;
     }
 
     // decrement from terminal period to copy backward the technical change for missing periods
@@ -191,6 +179,9 @@ void SubResource::completeInit( const std::string& aRegionName, const std::strin
             }
         }
     }
+
+    SectorUtils::fillMissingPeriodVectorInterpolated( mEnvironCost );
+    SectorUtils::fillMissingPeriodVectorInterpolated( mSeveranceTax );
 }
 
 /*! \brief Perform any initializations needed for each period.
@@ -202,28 +193,12 @@ void SubResource::completeInit( const std::string& aRegionName, const std::strin
 * \param aPeriod Model aPeriod
 */
 void SubResource::initCalc( const string& aRegionName, const string& aResourceName,
-                            const IInfo* aResourceInfo, const int aPeriod )
+                           const int aPeriod )
 {
     // call grade initializations
     for (unsigned int i = 0; i < mGrade.size(); i++) {
         mGrade[i]->initCalc( aRegionName, aResourceName, aPeriod );
     }
-    
-    // Note we have to reset the CO2coefficient for the resource to zero before
-    // the technology / output calls initCalc to avoid undesriable carbon accounting
-    // (positive carbon in the output but no inputs = negative emissions).
-    // we will then reset the value to what it was before after the call
-    Marketplace* marketplace = scenario->getMarketplace();
-    IInfo* productInfo = marketplace->getMarketInfo( aResourceName, aRegionName, aPeriod, false );
-    double resCCoef = productInfo ? productInfo->getDouble( "CO2coefficient", false ) : 0;
-    if( productInfo ) {
-        productInfo->setDouble( "CO2coefficient", 0.0 );
-    }
-    mTechnology->initCalc( aRegionName, aResourceName, aResourceInfo, 0, aPeriod );
-    if( productInfo ) {
-        productInfo->setDouble( "CO2coefficient", resCCoef );
-    }
-    
     // calculate total extraction cost for each grade
     for ( unsigned int gr=0; gr< mGrade.size(); gr++) {
         if ( aPeriod > 0) {
@@ -232,7 +207,8 @@ void SubResource::initCalc( const string& aRegionName, const string& aResourceNa
                 pow( ( 1.0 + mTechChange[ aPeriod ] ), modeltime->gettimestep( aPeriod ) );
         }
         // Determine cost
-        mGrade[gr]->calcCost( mCumulativeTechChange[ aPeriod ], aPeriod );
+        mGrade[gr]->calcCost( mSeveranceTax[ aPeriod ], mCumulativeTechChange[ aPeriod ],
+            mEnvironCost[ aPeriod ], aPeriod );
     }
 
     // Fill price added after it is calibrated.  This will interpolate to any
@@ -276,8 +252,41 @@ void SubResource::postCalc( const string& aRegionName, const string& aResourceNa
     for( unsigned int i = 0; i < mGrade.size(); i++ ) {
         mGrade[i]->postCalc( aRegionName, aResourceName, aPeriod );
     }
+}
+
+//! Blank definition so that don't have to define in derived classes if there is nothing to write out
+void SubResource::toXMLforDerivedClass( ostream& out, Tabs* tabs ) const {   
+}   
+
+//! Write data members to data stream in XML format for replicating input file.
+void SubResource::toInputXML( ostream& out, Tabs* tabs ) const {
+
+    const Modeltime* modeltime = scenario->getModeltime();
+
+    XMLWriteOpeningTag( getXMLName(), out, tabs, mName );
+
+    // write the xml for the class members.
+    const Value VALUE_DEFAULT( 0.0 ); // enables template function to recognize Value Class
+    XMLWriteVector( mEnvironCost, "environCost", out, tabs, modeltime, VALUE_DEFAULT );
+    XMLWriteVector( mSeveranceTax, "severanceTax", out, tabs, modeltime, VALUE_DEFAULT );
+    XMLWriteVector( mTechChange, "techChange", out, tabs, modeltime, VALUE_DEFAULT );
     
-    mTechnology->postCalc( aRegionName, aPeriod );
+    // for base year only
+    XMLWriteElementCheckDefault(mAnnualProd[0],"annualprod",out, tabs, VALUE_DEFAULT , modeltime->getper_to_yr(0));
+
+    XMLWriteVector( mCalProduction, "cal-production", out, tabs, modeltime, -1.0 );
+    XMLWriteVector( mPriceAdder, "price-adder", out, tabs, modeltime, VALUE_DEFAULT  );
+    // finished writing xml for the class members.
+
+    // write out anything specific to the derived classes
+    toXMLforDerivedClass( out, tabs );
+
+    // write out the grade objects.
+    for( vector<Grade*>::const_iterator i = mGrade.begin(); i != mGrade.end(); i++ ){ 
+        ( *i )->toInputXML( out, tabs );
+    }
+
+    XMLWriteClosingTag( getXMLName(), out, tabs );
 }
 
 void SubResource::toDebugXML( const int period, ostream& out, Tabs* tabs ) const {
@@ -289,6 +298,8 @@ void SubResource::toDebugXML( const int period, ostream& out, Tabs* tabs ) const
     XMLWriteElement( mAnnualProd[ period ], "annualprod", out, tabs );
     XMLWriteElement( mCumulProd[ period ], "cumulprod", out, tabs );
     XMLWriteElement( mTechChange[ period ], "techChange", out, tabs );
+    XMLWriteElement( mEnvironCost[ period ], "environCost", out, tabs );
+    XMLWriteElement( mSeveranceTax[ period ], "severanceTax", out, tabs );
     XMLWriteElement( mCalProduction[ period ], "cal-production", out, tabs );
     XMLWriteElement( mEffectivePrice[ period ], "effective-price", out, tabs );
     XMLWriteElement( mPriceAdder[ period ], "price-adder", out, tabs );
@@ -297,10 +308,11 @@ void SubResource::toDebugXML( const int period, ostream& out, Tabs* tabs ) const
     for( int i = 0; i < static_cast<int>( mGrade.size() ); i++ ){    
         mGrade[ i ]->toDebugXML( period, out, tabs );
     }
-    
-    mTechnology->toDebugXML( period, out, tabs );
 
     // finished writing xml for the class members.
+
+    // write out anything specific to the derived classes
+    toXMLforDerivedClass( out, tabs );
 
     XMLWriteClosingTag( getXMLName(), out, tabs );
 }
@@ -336,55 +348,56 @@ const std::string& SubResource::getName() const {
     return mName;
 }
 
-void SubResource::cumulsupply( const string& aRegionName, const string& aResourceName,
-                               double aPrice, int aPeriod )
-{
-    // Always calculate the effective price
-    ITechnology* currTech = mTechnology->getNewVintageTechnology( aPeriod );
-    currTech->calcCost( aRegionName, aResourceName, aPeriod );
-    mEffectivePrice[ aPeriod ] = aPrice + mPriceAdder[ aPeriod ] - currTech->getCost( aPeriod );
-    
-    double prevCumul = aPeriod != 0 ? mCumulProd[ aPeriod - 1 ] : 0.0;
+void SubResource::cumulsupply( double aPrice, int aPeriod )
+{  
+    if ( aPeriod == 0 ) {
+        mCumulProd[ aPeriod ] = 0.0;
+        mAnnualProd[ aPeriod ] = mCalProduction[ aPeriod ];
+        mPriceAdder[ aPeriod ] = 0.0;
+    }
 
-    // Case 1
-    // if market price is less than cost of first grade, then zero cumulative
-    // production
-    if ( mEffectivePrice[ aPeriod ] <= mGrade[0]->getCost( aPeriod )) {
-        mCumulProd[ aPeriod ] = prevCumul;
-    }
-    
-    // Case 2
-    // if market price is in between cost of first and last grade, then calculate
-    // cumulative production in between those grades
-    if ( mEffectivePrice[ aPeriod ] > mGrade[0]->getCost( aPeriod ) && mEffectivePrice[ aPeriod ] <= mGrade[ mGrade.size() - 1 ]->getCost( aPeriod )) {
-        mCumulProd[ aPeriod ] = 0;
-        int i = 0;
-        int iL = 0;
-        int iU = 0;
-        while ( mGrade[ i ]->getCost( aPeriod ) < mEffectivePrice[ aPeriod ] ) {
-            iL=i; i++; iU=i;
+    // Always calculate the effective price
+    mEffectivePrice[ aPeriod ] = aPrice + mPriceAdder[ aPeriod ];
+
+    if ( aPeriod > 0 ) {
+        // Case 1
+        // if market price is less than cost of first grade, then zero cumulative 
+        // production
+        if ( mEffectivePrice[ aPeriod ] <= mGrade[0]->getCost( aPeriod )) {
+            mCumulProd[ aPeriod ] = mCumulProd[ aPeriod - 1 ];
         }
-        // add subrsrcs up to the lower grade
-        for ( i = 0; i <= iL; i++ ) {
-            mCumulProd[ aPeriod ] += Value( mGrade[i]->getAvail() );
+        
+        // Case 2
+        // if market price is in between cost of first and last grade, then calculate 
+        // cumulative production in between those grades
+        if ( mEffectivePrice[ aPeriod ] > mGrade[0]->getCost( aPeriod ) && mEffectivePrice[ aPeriod ] <= mGrade[ mGrade.size() - 1 ]->getCost( aPeriod )) {
+            mCumulProd[ aPeriod ] = 0;
+            int i = 0;
+            int iL = 0;
+            int iU = 0;
+            while ( mGrade[ i ]->getCost( aPeriod ) < mEffectivePrice[ aPeriod ] ) {
+                iL=i; i++; iU=i;
+            }
+            // add subrsrcs up to the lower grade
+            for ( i = 0; i <= iL; i++ ) {
+                mCumulProd[ aPeriod ] += Value( mGrade[i]->getAvail() );
+            }
+            // price must reach upper grade cost to produce all of lower grade
+            double slope = mGrade[iL]->getAvail()
+                / ( mGrade[iU]->getCost( aPeriod ) - mGrade[iL]->getCost( aPeriod ) );
+            mCumulProd[ aPeriod ] -= Value( slope * ( mGrade[iU]->getCost( aPeriod ) - mEffectivePrice[ aPeriod ] ) );
         }
-        // price must reach upper grade cost to produce all of lower grade
-        double slope = mGrade[iL]->getAvail()
-            / ( mGrade[iU]->getCost( aPeriod ) - mGrade[iL]->getCost( aPeriod ) );
-        mCumulProd[ aPeriod ] -= Value( slope * ( mGrade[iU]->getCost( aPeriod ) - mEffectivePrice[ aPeriod ] ) );
-    }
-    
-    // Case 3
-    // if market price greater than the cost of the last grade, then
-    // cumulative production is the amount in all grades
-    if ( mEffectivePrice[ aPeriod ] > mGrade[ mGrade.size() - 1 ]->getCost( aPeriod ) ) {
-        mCumulProd[ aPeriod ] = 0;
-        for ( unsigned int i = 0; i < mGrade.size(); i++ ) {
-            mCumulProd[ aPeriod ] += Value( mGrade[i]->getAvail() );
+        
+        // Case 3
+        // if market price greater than the cost of the last grade, then
+        // cumulative production is the amount in all grades
+        if ( mEffectivePrice[ aPeriod ] > mGrade[ mGrade.size() - 1 ]->getCost( aPeriod ) ) {
+            mCumulProd[ aPeriod ] = 0;
+            for ( unsigned int i = 0; i < mGrade.size(); i++ ) {
+                mCumulProd[ aPeriod ] += Value( mGrade[i]->getAvail() );
+            }
         }
     }
-    
-    mCumulProd[ aPeriod ] = std::max( mCumulProd[ aPeriod ].get(), prevCumul );
 }
 
 double SubResource::getCumulProd( const int aPeriod ) const {
@@ -407,9 +420,7 @@ void SubResource::updateAvailable( const int aPeriod ){
 //! calculate annual supply
 /*! Takes into account short-term capacity limits.
 Note that cumulsupply() must be called before calling this function. */
-void SubResource::annualsupply( const string& aRegionName, const string& aResourceName,
-                                int aPeriod, const GDP* aGdp, double aPrice )
-{
+void SubResource::annualsupply( int aPeriod, const GDP* aGdp, double aPrice, double aPrev_price ) {
     const Modeltime* modeltime = scenario->getModeltime();
     // For period 0 use initial annual supply. Cumulative production is 0 for period 0
     if ( aPeriod >= 1) {
@@ -421,14 +432,12 @@ void SubResource::annualsupply( const string& aRegionName, const string& aResour
         // the whole timestep.
         mAnnualProd[ aPeriod ] = ( mCumulProd[ aPeriod ] - mCumulProd[ aPeriod - 1 ] ) 
                                 / modeltime->gettimestep( aPeriod );
-        
+
+
         if( mAnnualProd[ aPeriod ] <= 0) {
             mCumulProd[ aPeriod ] = mCumulProd[ aPeriod - 1 ];
             mAnnualProd[ aPeriod ] = 0.0;
-        }
-        
-        mTechnology->getNewVintageTechnology( aPeriod )->
-            production( aRegionName, aResourceName, mAnnualProd[ aPeriod ], 1.0, aGdp, aPeriod );
+        } 
 
         // mAvailable is the total resource (stock) remaining
         mAvailable[ aPeriod ] = mAvailable[ aPeriod - 1 ] - ( mAnnualProd[ aPeriod ] * modeltime->gettimestep( aPeriod ) );
@@ -452,8 +461,6 @@ void SubResource::accept( IVisitor* aVisitor, const int aPeriod ) const {
     for( unsigned int i = 0; i < mGrade.size(); ++i ){
         mGrade[ i ]->accept( aVisitor, aPeriod );
     }
-    mTechnology->accept( aVisitor, aPeriod );
-    
     aVisitor->endVisitSubResource( this, aPeriod );
 }
 
@@ -462,6 +469,83 @@ double SubResource::getAvailable(int per) const {
     return mAvailable[per];
 }
 
+//! write SubResource output to database
+void SubResource::dbOutput( const string &regname, const string& secname ){
+    // function protocol
+    void dboutput4(string var1name,string var2name,string var3name,string var4name,
+        string uname,vector<double> dout);
+
+    int m=0;
+    const Modeltime* modeltime = scenario->getModeltime();
+    const int maxper = modeltime->getmaxper();
+    const string outputUnit = mSubresourceInfo->getString( "output-unit", true );
+    const string priceUnit = mSubresourceInfo->getString( "price-unit", true );
+    vector<double> temp(maxper);
+    string tssname = mName; // tempory subsector name
+
+    // function arguments are variable name, double array, db name, table name
+    // the function writes all years
+    // total subsector output
+    //dboutput4(regname,"Primary Energy", "Production for " + secname,name,outputUnit,annualprod);
+    //    dboutput4(regname,"Resource",secname,str,"EJ",available);
+    dboutput4(regname,"Resource","Available "+secname,mName,outputUnit,convertToVector(mAvailable));
+    dboutput4(regname,"Resource","CummProd "+secname,mName,outputUnit,convertToVector(mCumulProd));
+
+    // do for all grades in the sector
+    for ( unsigned int i=0;i< mGrade.size();i++) {
+        string str = tssname + "_" + mGrade[i]->getName();
+        // grade cost
+        for (m=0;m<maxper;m++) {
+            temp[m] = mGrade[i]->getCost(m);
+        }
+        dboutput4(regname,"Price",secname,str,priceUnit,temp);
+        // grade extraction cost
+        for (m=0;m<maxper;m++) {
+            temp[m] = mGrade[i]->getExtCost();
+        }
+        dboutput4(regname,"Price ExtCost",secname,str,priceUnit,temp);
+        // available resource for each grade
+        for (m=0;m<maxper;m++) {
+            temp[m] = mGrade[i]->getAvail();
+        }
+        dboutput4(regname,"Resource",secname,str,outputUnit,temp);
+    }
+}
+
+//! write SubResource output to file
+void SubResource::csvOutputFile( const string &regname, const string& sname) {
+    const Modeltime* modeltime = scenario->getModeltime();
+    // function protocol
+    void fileoutput3( string var1name,string var2name,string var3name,
+        string var4name,string var5name,string uname,vector<double> dout);
+
+    const int maxper = modeltime->getmaxper();
+    const string outputUnit = mSubresourceInfo->getString( "output-unit", true );
+    vector<double> temp(maxper);
+
+    // function arguments are variable name, double array, db name, table name
+    // the function writes all years
+    // total subsector output
+    fileoutput3( regname,sname,mName," ","production",outputUnit,convertToVector(mAnnualProd));
+    fileoutput3( regname,sname,mName," ","resource",outputUnit,convertToVector(mAvailable));
+
+}
+
+
+// ************************************************************
+// Definitions for two of the derived classes below.
+// Since these are very small changes, keep in same file for simplicity
+// ************************************************************
+
+//! Parses any input variables specific to this derived class
+bool SubDepletableResource::XMLDerivedClassParse( const string& nodeName, const DOMNode* node ) {
+    return false;
+}
+
+//! Parses any input variables specific to this derived class
+bool SubFixedResource::XMLDerivedClassParse( const string& nodeName, const DOMNode* node ) {
+    return false;
+}
 //! get variance
 /*! do nothing here.  Applies to derived subrenewableresource
 * \author Marshall Wise

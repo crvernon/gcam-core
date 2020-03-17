@@ -52,7 +52,6 @@
 #include "util/base/include/configuration.h"
 #include "util/base/include/model_time.h"
 #include "marketplace/include/marketplace.h"
-#include "containers/include/iinfo.h"
 #include "util/base/include/xml_helper.h"
 #include "util/curves/include/explicit_point_set.h"
 #include "util/base/include/auto_file.h"
@@ -61,8 +60,6 @@
 #include "containers/include/single_scenario_runner.h"
 #include "policy/include/policy_ghg.h"
 #include "reporting/include/xml_db_outputter.h"
-
-#include <boost/algorithm/string/split.hpp>
 
 using namespace std;
 using namespace xercesc;
@@ -81,20 +78,6 @@ TotalPolicyCostCalculator::TotalPolicyCostCalculator( SingleScenarioRunner* aSin
     const Configuration* conf = Configuration::getInstance();
     mGHGName = conf->getString( "AbatedGasForCostCurves", "CO2" );
     mNumPoints = conf->getInt( "numPointsForCO2CostCurve", 5 );
-    
-    // A user may have specified more than one gas from which to sum emissions quantities
-    // which would be seperated by a ';'.  In such a case the first gas is assumed to be
-    // the policy name and the subsequent names are the constituent gasses from which to sum
-    if( mGHGName.find( ';' ) != string::npos ) {
-        boost::algorithm::split( mGHGQuantityNames, mGHGName, boost::is_any_of( ";" ) );
-        mGHGName = mGHGQuantityNames.front();
-        // Note, we are not going to remove the policy name from the list even though no emissions
-        // of that name will match only to ensure the name of the curve gets set correctly.
-    }
-    else {
-        // Just a single gas, same as the policy
-        mGHGQuantityNames.push_back( mGHGName );
-    }
 }
 
 //! Destructor. Deallocated memory for all the curves created. 
@@ -146,7 +129,7 @@ bool TotalPolicyCostCalculator::calculateAbatementCostCurve() {
     mEmissionsTCurves.resize( mNumPoints + 1 );
 
     // Get prices and emissions for the primary scenario run.
-    mEmissionsQCurves[ mNumPoints ] = getEmissionsQuantityCurve();
+    mEmissionsQCurves[ mNumPoints ] = mSingleScenario->getInternalScenario()->getEmissionsQuantityCurves( mGHGName );
     mEmissionsTCurves[ mNumPoints ] = mSingleScenario->getInternalScenario()->getEmissionsPriceCurves( mGHGName );
     
     // Run the trials and store the cost curves.
@@ -218,7 +201,7 @@ bool TotalPolicyCostCalculator::runTrials(){
                                                                 util::toString( currPoint ) );
 
         // Save information.
-        mEmissionsQCurves[ currPoint ] = getEmissionsQuantityCurve();
+        mEmissionsQCurves[ currPoint ] = mSingleScenario->getInternalScenario()->getEmissionsQuantityCurves( mGHGName );
         mEmissionsTCurves[ currPoint ] = mSingleScenario->getInternalScenario()->getEmissionsPriceCurves( mGHGName );
 
         // Restore original solved market prices after each cost iteration to ensure same
@@ -330,56 +313,6 @@ void TotalPolicyCostCalculator::createRegionalCostCurves() {
     }
 }
 
-/*!
- * \brief Get the emissions quantity curves by region.
- * \details This method will loop over each gas listed in mGHGQuantityNames and
- *          query those emissions from the scenario and sum them weighting by the
- *          "demand-adjust" set in that gas' market info.
- * \return A total emissions quantity curve by region.
- */
-TotalPolicyCostCalculator::RegionCurves TotalPolicyCostCalculator::getEmissionsQuantityCurve() const {
-    /*! \pre At-least one gas is set to sum */
-    assert( !mGHGQuantityNames.empty() );
-    
-    RegionCurves ret;
-    
-    const Modeltime* modeltime = mSingleScenario->getInternalScenario()->getModeltime();
-    const Marketplace* marketplace = mSingleScenario->getInternalScenario()->getMarketplace();
-    const string DEMAND_ADJ_KEY = "demand-adjust";
-    
-    for( string currGHG : mGHGQuantityNames ) {
-        RegionCurves currGHGCurves = mSingleScenario->getInternalScenario()->getEmissionsQuantityCurves( currGHG );
-        for( auto currRegionCurve : currGHGCurves ) {
-            string currRegion = currRegionCurve.first;
-            for( int period = 0; period < modeltime->getmaxper(); ++period ) {
-                int year = modeltime->getper_to_yr( period );
-                const IInfo* currMarketInfo = marketplace->getMarketInfo( currGHG, currRegion, period, false );
-                // if the market info contains the "demand-adjust" we should weight the emissions with it
-                if( currMarketInfo && currMarketInfo->hasValue( DEMAND_ADJ_KEY ) ) {
-                    double demandAdjust = currMarketInfo->getDouble( DEMAND_ADJ_KEY, true );
-                    // adjust curve by demand adjust
-                    const_cast<Curve*>( currRegionCurve.second )->setY( year, currRegionCurve.second->getY( year ) * demandAdjust );
-                }
-            }
-            // Update the return regional curves for this gas
-            auto retRegionCurve = ret.find( currRegion );
-            if( retRegionCurve == ret.end() ) {
-                // This region doesn't exist yet in the return data so just copy it over
-                ret[ currRegion ] = currRegionCurve.second;
-            }
-            else {
-                // Add in the current gas + region to the total curve to return
-                for( int period = 0; period < modeltime->getmaxper(); ++period ) {
-                    int year = modeltime->getper_to_yr( period );
-                    const_cast<Curve*>( (*retRegionCurve).second )->setY( year, (*retRegionCurve).second->getY( year ) + currRegionCurve.second->getY( year ) );
-                }
-            }
-        }
-    }
-    
-    return ret;
-}
-
 /*! \brief Print the output.
 * \details Print the output to an XML file, the Access database, and the XML
 *          database.
@@ -407,6 +340,91 @@ void TotalPolicyCostCalculator::printOutput() const {
     if( Configuration::getInstance()->shouldWriteFile( "xmldb-location" ) ) {
         mSingleScenario->getXMLDBOutputter()->appendData( xmlString, UPDATE_LOCATION );
     }
+
+    // Write to the database.
+    if( Configuration::getInstance()->shouldWriteFile( "dbFileName" ) ) {
+        writeToDB();
+    }
+
+    // Write to CSV file
+    writeToCSV();
+}
+
+/*! \brief Write total cost output to the csv file.
+*/
+void TotalPolicyCostCalculator::writeToCSV() const {
+    // function protocol
+    void fileoutput3(string var1name,string var2name,string var3name,
+        string var4name,string var5name,string uname,vector<double> dout);
+
+    const Modeltime* modeltime = mSingleScenario->getInternalScenario()->getModeltime();
+    const int maxPeriod = modeltime->getmaxper();
+    vector<double> tempOutVec( maxPeriod );
+    for( CRegionCurvesIterator rIter = mRegionalCostCurves.begin(); rIter != mRegionalCostCurves.end(); ++rIter ){
+        // Write out to the database.
+        for( int per = 0; per < maxPeriod; ++per ){
+            tempOutVec[ per ] = rIter->second->getY( modeltime->getper_to_yr( per ) );
+        }
+        fileoutput3(rIter->first,"PolicyCost","","PolicyCostUndisc","Period","(millions)90US$",tempOutVec);
+    }
+
+    // Write out undiscounted costs by region.
+    tempOutVec.clear();
+    tempOutVec.resize( maxPeriod );
+    // Note: Since the carbon tax is in 1990 dollars, the total costs are
+    // already in 1990 dollars.
+    for( CRegionalCostsIterator iter = mRegionalCosts.begin(); iter != mRegionalCosts.end(); iter++ ){
+        // regional total cost of policy
+        tempOutVec[maxPeriod-1] = iter->second;
+        fileoutput3(iter->first,"PolicyCost","","PolicyCostTotalUndisc","AllYears","(millions)90US$",tempOutVec);
+    }
+
+    // Write out discounted costs by region.
+    tempOutVec.clear();
+    tempOutVec.resize( maxPeriod );
+    for( CRegionalCostsIterator iter = mRegionalDiscountedCosts.begin(); iter != mRegionalDiscountedCosts.end(); iter++ ){
+        // regional total cost of policy
+        tempOutVec[maxPeriod-1] = iter->second;
+        fileoutput3(iter->first,"PolicyCost","","PolicyCostTotalDisc","AllYears","(millions)90US$",tempOutVec);
+    }
+}
+
+/*! \brief Write total cost output to the Access database.
+*/
+void TotalPolicyCostCalculator::writeToDB() const {
+    // Database function definition. 
+    void dboutput4(string var1name,string var2name,string var3name,string var4name,
+        string uname,vector<double> dout);
+
+    const Modeltime* modeltime = mSingleScenario->getInternalScenario()->getModeltime();
+    const int maxPeriod = modeltime->getmaxper();
+
+    vector<double> tempOutVec( maxPeriod );
+    for( CRegionCurvesIterator rIter = mRegionalCostCurves.begin(); rIter != mRegionalCostCurves.end(); ++rIter ){
+        // Write out to the database.
+        for( int per = 0; per < maxPeriod; ++per ){
+            tempOutVec[ per ] = rIter->second->getY( modeltime->getper_to_yr( per ) );
+        }
+        dboutput4(rIter->first,"General","PolicyCostUndisc","Period","(millions)90US$",tempOutVec);
+    }
+
+    // Write out undiscounted costs by region.
+    tempOutVec.clear();
+    tempOutVec.resize( maxPeriod );
+    for( CRegionalCostsIterator iter = mRegionalCosts.begin(); iter != mRegionalCosts.end(); iter++ ){
+        // regional total cost of policy
+        tempOutVec[maxPeriod-1] = iter->second;
+        dboutput4(iter->first,"General","PolicyCostTotalUndisc","AllYears","(millions)90US$",tempOutVec);
+    }
+
+    // Write out discounted costs by region.
+    tempOutVec.clear();
+    tempOutVec.resize( maxPeriod );
+    for( CRegionalCostsIterator iter = mRegionalDiscountedCosts.begin(); iter != mRegionalDiscountedCosts.end(); iter++ ){
+        // regional total cost of policy
+        tempOutVec[maxPeriod-1] = iter->second;
+        dboutput4(iter->first,"General","PolicyCostTotalDisc","AllYears","(millions)90US$",tempOutVec);
+    }
 }
 
 /*! Create a string containing the XML output.
@@ -428,7 +446,7 @@ const string TotalPolicyCostCalculator::createXMLOutputString() const {
         const int year = modeltime->getper_to_yr( per );
         XMLWriteOpeningTag( "CostCurves", buffer, &tabs, "", year );
         for( CRegionCurvesIterator rIter = mPeriodCostCurves[ per ].begin(); rIter != mPeriodCostCurves[ per ].end(); rIter++ ){
-            rIter->second->outputAsXML( buffer, &tabs );
+            rIter->second->toInputXML( buffer, &tabs );
         }
         XMLWriteClosingTag( "CostCurves", buffer, &tabs );
     }
@@ -436,7 +454,7 @@ const string TotalPolicyCostCalculator::createXMLOutputString() const {
     
     XMLWriteOpeningTag( "RegionalCostCurvesByPeriod", buffer, &tabs );
     for( CRegionCurvesIterator rIter = mRegionalCostCurves.begin(); rIter != mRegionalCostCurves.end(); ++rIter ){
-        rIter->second->outputAsXML( buffer, &tabs );
+        rIter->second->toInputXML( buffer, &tabs );
     }
     XMLWriteClosingTag( "RegionalCostCurvesByPeriod", buffer, &tabs ); 
     

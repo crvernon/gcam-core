@@ -83,6 +83,12 @@ const string& Intensity::getName() const {
     return getXMLNameStatic();
 }
 
+void Intensity::toInputXML( ostream& aOut,
+                            Tabs* aTabs ) const
+{
+    XMLWriteElement( mReadInIntensity, getXMLNameStatic(), aOut, aTabs );
+}
+
 void Intensity::toDebugXML( const int aPeriod,
                             ostream& aOut,
                             Tabs* aTabs ) const

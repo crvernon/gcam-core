@@ -147,9 +147,6 @@ bool FractionalSecondaryOutput::XMLParse( const DOMNode* aNode )
         else if( nodeName == "output-ratio" ) {
             mOutputRatio.set( XMLHelper<double>::getValue( curr ) );
         }
-        else if( nodeName == "calPrice" ) {
-            mCalPrice.set( XMLHelper<double>::getValue( curr ) );
-        }
         else if( nodeName == "market-name" ) {
             mMarketName = XMLHelper<string>::getValue( curr );
         }
@@ -174,13 +171,28 @@ bool FractionalSecondaryOutput::XMLParse( const DOMNode* aNode )
     return true;
 }
 
+void FractionalSecondaryOutput::toInputXML( ostream& aOut, Tabs* aTabs ) const {
+    XMLWriteOpeningTag( getXMLNameStatic(), aOut, aTabs, mName );
+    XMLWriteElement( mOutputRatio, "output-ratio", aOut, aTabs );
+    
+    const vector<pair<double,double> > pairs = mCostCurve->getSortedPairs();
+    typedef vector<pair<double, double> >::const_iterator PairIterator;
+    map<string, double> attrs;
+    for( PairIterator currPair = pairs.begin(); currPair != pairs.end(); ++currPair ) {
+        attrs[ "price" ] = currPair->first;
+        XMLWriteElementWithAttributes( currPair->second, "fraction-produced", aOut, aTabs, attrs );
+    }
+    
+    XMLWriteElementCheckDefault( mMarketName, "market-name", aOut, aTabs, string() );
+    XMLWriteClosingTag( getXMLNameStatic(), aOut, aTabs );
+}
+
 void FractionalSecondaryOutput::toDebugXML( const int aPeriod,
                                             ostream& aOut,
                                             Tabs* aTabs ) const
 {
     XMLWriteOpeningTag( getXMLNameStatic(), aOut, aTabs, mName );
     XMLWriteElement( mOutputRatio, "output-ratio", aOut, aTabs );
-    XMLWriteElement( mCalPrice, "calPrice", aOut, aTabs );
     XMLWriteElement( mPhysicalOutputs[ aPeriod ], "output", aOut, aTabs );
     
     const vector<pair<double,double> > pairs = mCostCurve->getSortedPairs();
@@ -226,13 +238,6 @@ void FractionalSecondaryOutput::initCalc( const string& aRegionName,
                                           const string& aSectorName,
                                           const int aPeriod )
 {
-    // If we are in a calibration period and a calibrated value was read in then set the
-    // flag on the market that this resource is fully calibrated.
-    if( aPeriod <= scenario->getModeltime()->getFinalCalibrationPeriod() && mCalPrice.isInited() ) {
-        IInfo* marketInfo = scenario->getMarketplace()->getMarketInfo( mName, aRegionName, aPeriod, true );
-        marketInfo->setBoolean( "fully-calibrated", true );
-    }
-    
     // The fractional supply will not have any additional behavior below the minimum price
     // however there may still be some indirect behavior above the top of the curve as it affects
     // the primary good's economics.
@@ -285,10 +290,8 @@ double FractionalSecondaryOutput::getValue( const string& aRegionName,
                                             const int aPeriod ) const
 {
     double secondaryGoodPrice = getMarketPrice( aRegionName, aPeriod );
-    // if calibrating then we assume a fractional production of 1
     // do not allow extrapolation
-    double productionFraction = aPeriod <= scenario->getModeltime()->getFinalCalibrationPeriod() && mCalPrice.isInited() ?
-        1.0 : min( mCostCurve->getMaxY(), mCostCurve->getY( secondaryGoodPrice ) );
+    double productionFraction = min( mCostCurve->getMaxY(), mCostCurve->getY( secondaryGoodPrice ) );
 
     // The value of the secondary output is the market price multiplied by the
     // output ratio adjusted by the fractional production.
@@ -344,10 +347,6 @@ double FractionalSecondaryOutput::calcPhysicalOutputInternal( const string& aReg
                                                               const int aPeriod ) const
 {
     double maxSecondaryOutput = aPrimaryOutput * mOutputRatio;
-    // If we are calibrating then always assume an output ratio of 1.
-    if( aPeriod <= scenario->getModeltime()->getFinalCalibrationPeriod() && mCalPrice.isInited() ) {
-        return maxSecondaryOutput;
-    }
     double secondaryGoodPrice = getMarketPrice( aRegionName, aPeriod );
     // do not allow extrapolation
     double productionFraction = min( mCostCurve->getMaxY(), mCostCurve->getY( secondaryGoodPrice ) );

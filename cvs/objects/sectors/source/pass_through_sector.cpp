@@ -88,9 +88,13 @@ bool PassThroughSector::XMLDerivedClassParse( const string& aNodeName, const DOM
     return didParse;
 }
 
-void PassThroughSector::toDebugXMLDerived( const int aPeriod, ostream& aOut, Tabs* aTabs ) const {
+void PassThroughSector::toInputXMLDerived( ostream& aOut, Tabs* aTabs ) const {
     XMLWriteElement( mMarginalRevenueSector, "marginal-revenue-sector", aOut, aTabs );
     XMLWriteElementCheckDefault( mMarginalRevenueMarket, "marginal-revenue-market", aOut, aTabs, mRegionName );
+}
+
+void PassThroughSector::toDebugXMLDerived( const int aPeriod, ostream& aOut, Tabs* aTabs ) const {
+    toInputXMLDerived( aOut, aTabs );
 }
 
 void PassThroughSector::completeInit( const IInfo* aRegionInfo,

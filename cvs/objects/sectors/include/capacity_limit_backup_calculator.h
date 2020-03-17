@@ -92,6 +92,7 @@ public:
     virtual bool isSameType( const std::string& aType ) const;
     virtual const std::string& getName() const;
     virtual bool XMLParse( const xercesc::DOMNode* aNode );
+    virtual void toInputXML( std::ostream& aOut, Tabs* aTabs ) const;
     virtual void toDebugXML( const int aPeriod, std::ostream& aOut, Tabs* aTabs ) const;
     virtual void initCalc( const IInfo* aTechInfo );
     

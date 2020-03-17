@@ -55,17 +55,16 @@
 #include "sectors/include/energy_final_demand.h"
 #include "sectors/include/sector.h"
 #include "sectors/include/subsector.h"
-#include "sectors/include/nesting_subsector.h"
 #include "technologies/include/technology.h"
 #include "emissions/include/aghg.h"
 #include "technologies/include/icapture_component.h"
 #include "util/base/include/model_time.h"
+#include "containers/include/output_meta_data.h"
 #include "marketplace/include/marketplace.h"
 #include "marketplace/include/market.h"
 #include "climate/include/iclimate_model.h"
 #include "climate/include/magicc_model.h"
 #include "resources/include/subresource.h"
-#include "resources/include/reserve_subresource.h"
 #include "resources/include/renewable_subresource.h"
 #include "resources/include/smooth_renewable_subresource.h"
 #include "resources/include/grade.h"
@@ -98,6 +97,7 @@
 #include "containers/include/national_account.h"
 #include "sectors/include/more_sector_info.h"
 #include "util/base/include/util.h"
+#include "reporting/include/indirect_emissions_calculator.h"
 #include "technologies/include/default_technology.h"
 #include "technologies/include/iproduction_state.h"
 #include "util/base/include/auto_file.h"
@@ -182,8 +182,7 @@ XMLDBOutputter::JNIContainer::~JNIContainer() {
 */
 XMLDBOutputter::XMLDBOutputter():
 mTabs( new Tabs ),
-mGDP( 0 ),
-mSubsectorDepth( 0 )
+mGDP( 0 )
 #if( __HAVE_JAVA__ )
 ,mJNIContainer( createContainer( false ) )
 #endif
@@ -325,7 +324,7 @@ auto_ptr<XMLDBOutputter::JNIContainer> XMLDBOutputter::createContainer( const bo
     // will need to use a custom class loader that will do the expansion prior to
     // loading any classes.
     const string classpath = "-Djava.class.path=XMLDBDriver.jar" + string( PATH_SEPARATOR ) + string( JARS_LIB )
-        + string( PATH_SEPARATOR ) + "../output/modelinterface/ModelInterface.jar";
+        + string( PATH_SEPARATOR ) + "../input/gcam-data-system/_common/ModelInterface/src/ModelInterface.jar";
     options[ 0 ].optionString = const_cast<char*>( classpath.c_str() );
     options[ 1 ].optionString = const_cast<char*>( "-Djava.system.class.loader=WildcardExpandingClassLoader" );
     vmArgs.version = JNI_VERSION_1_6;
@@ -498,6 +497,20 @@ void XMLDBOutputter::endVisitScenario( const Scenario* aScenario, const int aPer
     XMLWriteClosingTag( aScenario->getXMLNameStatic(), mBuffer, mTabs.get() );
 }
 
+void XMLDBOutputter::startVisitOutputMetaData( const OutputMetaData* aOutputMetaData,
+                                               const int aPeriod )
+{
+    // Don't write opening and closing tags directly because toInputXML will do it.
+    // Write the internal data. The input XML format will work.
+    aOutputMetaData->toInputXML( mBuffer, mTabs.get() );
+}
+
+void XMLDBOutputter::endVisitOutputMetaData( const OutputMetaData* aOutputMetaData,
+                                            const int aPeriod )
+{
+    // Don't write opening and closing tags directly because toInputXML will do it.
+}
+
 void XMLDBOutputter::startVisitWorld( const World* aWorld, const int aPeriod ){
     // Write the opening world tag.
     XMLWriteOpeningTag( aWorld->getXMLNameStatic(), mBuffer, mTabs.get() );
@@ -514,6 +527,16 @@ void XMLDBOutputter::startVisitRegion( const Region* aRegion,
     // Store the region name.
     assert( mCurrentRegion.empty() );
     mCurrentRegion = aRegion->getName();
+
+    // Calculate indirect emissions coefficients for all Technologies in a Region.
+    mIndirectEmissCalc.reset( new IndirectEmissionsCalculator );
+
+    // The XML db outputter is always called in all-period mode but the indirect
+    // emissions calculator only works in single period mode.
+    assert( aPeriod == -1 );
+    for( int m = 0; m < scenario->getModeltime()->getmaxper(); ++m ){
+        aRegion->accept( mIndirectEmissCalc.get(), m );
+    }
 }
 
 void XMLDBOutputter::endVisitRegion( const Region* aRegion,
@@ -576,6 +599,10 @@ void XMLDBOutputter::startVisitResource( const AResource* aResource,
             aResource->getAnnualProd( mCurrentRegion, per ), per );
     }
 
+    // Ghgs are expecting to use the buffer stack to write results into
+    // so create one for them to write into.
+    mBufferStack.push( new stringstream );
+
     // We want to write the keywords last due to limitations in
     // XPath we could be searching for them using following-sibling
     if( !aResource->mKeywordMap.empty() ) {
@@ -586,6 +613,18 @@ void XMLDBOutputter::startVisitResource( const AResource* aResource,
 void XMLDBOutputter::endVisitResource( const AResource* aResource,
                                        const int aPeriod )
 {
+    // Write the ghgs which put their output into the buffer stack.  We
+    // are not too concerned with writing empty tags at the resource
+    // level so we are not doing the full parent child buffers as in
+    // technology.
+    ostream* childBuffer = popBufferStack();
+    if( childBuffer->rdbuf()->in_avail() ) {
+        mBuffer << childBuffer->rdbuf();
+    }
+    delete childBuffer;
+    // the buffer stack should be empty by now
+    assert( mBufferStack.empty() );
+
     // Write the closing resource tag.
     XMLWriteClosingTag( aResource->getXMLName(), mBuffer, mTabs.get() );
     // Clear the current resource.
@@ -613,16 +652,6 @@ void XMLDBOutputter::endVisitSubResource( const SubResource* aSubResource,
 {
     // Write the closing subresource tag.
     XMLWriteClosingTag( aSubResource->getXMLName(), mBuffer, mTabs.get() );
-}
-
-void XMLDBOutputter::startVisitReserveSubResource( const ReserveSubResource* aSubResource, const int aPeriod )
-{
-    startVisitSubResource( aSubResource, aPeriod );
-}
-
-void XMLDBOutputter::endVisitReserveSubResource( const ReserveSubResource* aSubResource, const int aPeriod )
-{
-    endVisitSubResource( aSubResource, aPeriod );
 }
 
 void XMLDBOutputter::startVisitSubRenewableResource( const SubRenewableResource* aSubResource,
@@ -718,16 +747,8 @@ void XMLDBOutputter::startVisitSubsector( const Subsector* aSubsector,
                                           const int aPeriod )
 {
     // Write the opening subsector tag and the type of the base class.
-    map<string, string> attrs;
-    attrs["name"] = aSubsector->getName();
-    attrs["type"] = Subsector::getXMLNameStatic();
-    int currDepth = mSubsectorDepth++;
-    // optimization to avoid writing depth of zero, which is the vast majority
-    // of the cases, to save space in the DB.
-    if( currDepth > 0 ) {
-        attrs["depth"] = util::toString( currDepth );
-    }
-    XMLWriteOpeningTag( aSubsector->getXMLName(), mBuffer, mTabs.get(), attrs );
+    XMLWriteOpeningTag( aSubsector->getXMLName(), mBuffer, mTabs.get(),
+        aSubsector->getName(), 0, Subsector::getXMLNameStatic() );
 
     // Loop over the periods to output subsector information.
     // The loops are separated so the types are grouped together, as is required for
@@ -747,20 +768,8 @@ void XMLDBOutputter::startVisitSubsector( const Subsector* aSubsector,
 void XMLDBOutputter::endVisitSubsector( const Subsector* aSubsector,
                                         const int aPeriod )
 {
-    --mSubsectorDepth;
     // Write the closing subsector tag.
     XMLWriteClosingTag( aSubsector->getXMLName(), mBuffer, mTabs.get() );
-}
-
-void XMLDBOutputter::startVisitNestingSubsector( const NestingSubsector* aSubsector,
-                                                 const int aPeriod )
-{
-    startVisitSubsector( aSubsector, aPeriod );
-}
-void XMLDBOutputter::endVisitNestingSubsector( const NestingSubsector* aSubsector,
-                                               const int aPeriod )
-{
-    endVisitSubsector( aSubsector, aPeriod );
 }
 
 void XMLDBOutputter::startVisitTranSubsector( const TranSubsector* aTranSubsector, const int aPeriod ) {
@@ -1644,8 +1653,6 @@ void XMLDBOutputter::startVisitCarbonCalc( const ICarbonCalc* aCarbonCalc, const
              aYear <= modeltime->getper_to_yr( modeltime->getmaxper() - 1 ) || aYear == modeltime->getper_to_yr( modeltime->getmaxper() - 1 ); 
              aYear += outputInterval ){
         writeItemUsingYear( "land-use-change-emission", "MtC/yr", aCarbonCalc->getNetLandUseChangeEmission( aYear ), aYear );
-        writeItemUsingYear( "above-land-use-change-emission", "MtC/yr", aCarbonCalc->getNetLandUseChangeEmissionAbove( aYear ), aYear );
-        writeItemUsingYear( "below-land-use-change-emission", "MtC/yr", aCarbonCalc->getNetLandUseChangeEmissionBelow( aYear ), aYear );
      }
     
     for( int aYear = modeltime->getStartYear(); 
@@ -2108,7 +2115,22 @@ void XMLDBOutputter::writeItemUsingYear( const string& aName,
  * \author Sonny Kim
  */
 bool XMLDBOutputter::isTechnologyOperating( const int aPeriod ){
-    return mCurrentTechnology->isOperating( aPeriod );
+    bool isOperating = false;
+    // If operating and has output greater than zero.
+    if( mCurrentTechnology->mProductionState[ aPeriod ] && mCurrentTechnology->mProductionState[ aPeriod ]->isOperating() ){
+        //if( mCurrentTechnology->getOutput( aPeriod ) > 0 ){
+            isOperating = true;
+        //}
+    }
+    // If not operating but is fixed output.
+    else {
+        if( mCurrentTechnology->mFixedOutput != IProductionState::fixedOutputDefault() ){
+            if( mCurrentTechnology->getOutput( aPeriod ) > 0 ){
+                isOperating = true;
+            }
+        }
+    }
+    return isOperating;
 }
 
 /**

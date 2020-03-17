@@ -133,6 +133,7 @@ protected:
     
     void copy( const UnmanagedLandTechnology& aOther );
 
+    virtual void toInputXMLDerived( std::ostream& out, Tabs* tabs ) const;
     virtual void toDebugXMLDerived( const int period, std::ostream& out, Tabs* tabs ) const;
  };
 

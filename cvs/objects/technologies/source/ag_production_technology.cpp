@@ -135,6 +135,15 @@ void AgProductionTechnology::acceptDerived( IVisitor* aVisitor, const int aPerio
 }
 
 //! write object to xml output stream
+void AgProductionTechnology::toInputXMLDerived( ostream& out, Tabs* tabs ) const {
+    XMLWriteElement( mNonLandVariableCost, "nonLandVariableCost", out, tabs );
+    XMLWriteElementCheckDefault( mNonLandCostTechChange, "nonLandCostTechChange", out, tabs, 0.0 );
+    XMLWriteElementCheckDefault( mYield, "yield", out, tabs, 0.0 );
+    XMLWriteElementCheckDefault( mAgProdChange, "agProdChange", out, tabs, 0.0 );   
+    XMLWriteElementCheckDefault( mHarvestsPerYear, "harvests-per-year", out, tabs, 1.0 );
+}
+
+//! write object to xml output stream
 void AgProductionTechnology::toDebugXMLDerived( const int period, ostream& out, Tabs* tabs ) const {
     XMLWriteElement( mNonLandVariableCost, "nonLandVariableCost", out, tabs );
     XMLWriteElement( mYield, "yield", out, tabs );
@@ -354,7 +363,7 @@ void AgProductionTechnology::setCalYields(const std::string& aRegionName) {
         else if ( mCalValue->getCalOutput() > 0 ) {
             ILogger& mainLog = ILogger::getLogger( "main_log" );
             mainLog.setLevel( ILogger::WARNING );
-            mainLog << "Caloutput read in but no land read in for technology "
+            mainLog << "Caloutput read in but no land read in for technology"
                 << aRegionName << " " << mName << endl;
             mYield=0;
         }

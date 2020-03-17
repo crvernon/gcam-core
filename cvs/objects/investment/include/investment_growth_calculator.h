@@ -67,6 +67,7 @@ public:
 
     void XMLParse( const xercesc::DOMNode* aCurr );
     void toDebugXML( const int period, std::ostream& aOut, Tabs* aTabs ) const;
+    void toInputXML( std::ostream& aOut, Tabs* aTabs ) const;
 
     double calcInvestmentDependencyScalar( const std::vector<IInvestable*>& aInvestables,
                                            const Demographic* aDemographic,

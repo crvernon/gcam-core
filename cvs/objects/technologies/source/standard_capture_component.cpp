@@ -145,6 +145,17 @@ bool StandardCaptureComponent::XMLParse( const xercesc::DOMNode* node ){
     return true;
 }
 
+void StandardCaptureComponent::toInputXML( ostream& aOut, Tabs* aTabs ) const {
+    XMLWriteOpeningTag( getXMLNameStatic(), aOut, aTabs );
+    XMLWriteElementCheckDefault( mStorageMarket, "storage-market", aOut, aTabs, string( "" ) );
+	XMLWriteElementCheckDefault( mTargetGas, "target-gas", aOut, aTabs, string( "CO2" ) );
+    XMLWriteElementCheckDefault( mRemoveFraction, "remove-fraction", aOut, aTabs, 0.0 );
+    XMLWriteElementCheckDefault( mStorageCost, "storage-cost", aOut, aTabs, util::getLargeNumber() );
+    XMLWriteElementCheckDefault( mIntensityPenalty, "intensity-penalty", aOut, aTabs, 0.0 );
+	XMLWriteElementCheckDefault( mNonEnergyCostPenalty, "non-energy-penalty", aOut, aTabs, 0.0 );
+	XMLWriteClosingTag( getXMLNameStatic(), aOut, aTabs );
+}
+
 void StandardCaptureComponent::toDebugXML( const int aPeriod, ostream& aOut, Tabs* aTabs ) const {
     XMLWriteOpeningTag( getXMLNameStatic(), aOut, aTabs );
     XMLWriteElement( mStorageMarket, "storage-market", aOut, aTabs );
@@ -251,12 +262,10 @@ double StandardCaptureComponent::calcSequesteredAmount( const string& aRegionNam
     // Calculate the amount of sequestration.
     // Note the remove fraction is only greater than zero if the current GHG matches
     // the target gas of this capture component.
-    double removeFrac = getRemoveFraction( aGHGName );
-    double sequestered =  0.0;
+    double sequestered = getRemoveFraction( aGHGName ) * aTotalEmissions;
 
     // Add the demand to the marketplace.
-    if( removeFrac > 0 ){
-        sequestered = removeFrac * aTotalEmissions;
+    if( sequestered > 0 ){
         mSequesteredAmount[ aPeriod ] = sequestered;
         // set sequestered amount as demand side of carbon storage market
         Marketplace* marketplace = scenario->getMarketplace();

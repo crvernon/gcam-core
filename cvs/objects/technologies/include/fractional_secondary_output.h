@@ -101,6 +101,9 @@ public:
 
     virtual bool XMLParse( const xercesc::DOMNode* aNode );
 
+    virtual void toInputXML( std::ostream& aOut,
+                             Tabs* aTabs ) const;
+
     virtual void toDebugXML( const int aPeriod,
                              std::ostream& aOut,
                              Tabs* aTabs ) const;
@@ -185,7 +188,7 @@ protected:
         IOutput,
 
         //! Physical output by period.
-        DEFINE_VARIABLE( ARRAY | STATE, "physical-output", mPhysicalOutputs, objects::TechVintageVector<Value> ),
+        DEFINE_VARIABLE( ARRAY | STATE, "physical-output", mPhysicalOutputs, objects::PeriodVector<Value> ),
 
         //! Name of the secondary output. Corresponds to a market for this good 
         //! which must be explicitly solved for.
@@ -194,10 +197,6 @@ protected:
         //! Ratio of the secondary output to primary output production such that
         //! primary output multiplied by the ratio is equal to secondary output.
         DEFINE_VARIABLE( SIMPLE, "output-ratio", mOutputRatio, Value ),
-                            
-        //! A fixed price to use for calibration if set.
-        //! Note if we are calibrating then we assume a output-ratio of 1 and disable solving.
-        DEFINE_VARIABLE( SIMPLE, "calPrice", mCalPrice, Value ),
         
         //! Piece-wise linear cost curve that contains price driven fraction adjustments
         //! to mOutputRatio.

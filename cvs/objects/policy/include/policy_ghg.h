@@ -51,6 +51,7 @@
 #include <boost/core/noncopyable.hpp>
 
 #include "util/base/include/inamed.h"
+#include "util/base/include/iround_trippable.h"
 #include "util/base/include/time_vector.h"
 #include "util/base/include/data_definition_util.h"
 
@@ -62,7 +63,7 @@ class LinkedGHGPolicy;
 * \brief Class which defines greenhouse gas mitigation policy. 
 * \author Sonny Kim
 */
-class GHGPolicy: public INamed, private boost::noncopyable {
+class GHGPolicy: public INamed, public IRoundTrippable, private boost::noncopyable {
 public:
     GHGPolicy();
     GHGPolicy( const std::string aName,
@@ -75,6 +76,7 @@ public:
     virtual const std::string& getXMLName() const;
     static const std::string& getXMLNameStatic();
     virtual void XMLParse( const xercesc::DOMNode* node );
+    virtual void toInputXML( std::ostream& out, Tabs* tabs ) const;
     virtual void toDebugXML( const int period, std::ostream& out, Tabs* tabs ) const;
     virtual void completeInit( const std::string& aRegionName );
     virtual bool isApplicable( const std::string& aRegion ) const;

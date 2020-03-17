@@ -157,6 +157,9 @@ public:
     virtual void accept( IVisitor* aVisitor, 
                          const int aPeriod ) const;
 
+    virtual void toInputXML( std::ostream& out, 
+                             Tabs* tabs ) const;
+
     virtual bool XMLParse( const xercesc::DOMNode* aNode );
 
 protected:
@@ -166,6 +169,9 @@ protected:
     virtual void toDebugXMLDerived( const int period, 
                                     std::ostream& out, 
                                     Tabs* tabs ) const;
+
+    virtual void toInputXMLDerived( std::ostream& aOutput, 
+                                    Tabs* aTabs ) const;
 
     virtual const std::string& getXMLName() const;
     

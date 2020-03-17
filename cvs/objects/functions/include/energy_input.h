@@ -101,6 +101,9 @@ public:
 
     virtual bool isSameType( const std::string& aType ) const;
 
+    virtual void toInputXML( std::ostream& aOut,
+                             Tabs* aTabs ) const;
+
     virtual void toDebugXML( const int aPeriod,
                              std::ostream& aOut,
                              Tabs* aTabs ) const;
@@ -196,11 +199,11 @@ protected:
         DEFINE_VARIABLE( SIMPLE, "price-unit-conversion", mPriceUnitConversionFactor, Value ),
 
         //! Physical Demand.
-        DEFINE_VARIABLE( ARRAY | STATE, "physical-demand", mPhysicalDemand, objects::TechVintageVector<Value> ),
+        DEFINE_VARIABLE( ARRAY | STATE, "physical-demand", mPhysicalDemand, objects::PeriodVector<Value> ),
 
         //! Current coefficient after adjustments have been made by the technology's
         //! capture component.
-        DEFINE_VARIABLE( ARRAY | STATE, "current-coef", mAdjustedCoefficients, objects::TechVintageVector<Value> )
+        DEFINE_VARIABLE( ARRAY | STATE, "current-coef", mAdjustedCoefficients, objects::PeriodVector<Value> )
     )
     
     //! A pre-located market which has been cahced from the marketplace to get

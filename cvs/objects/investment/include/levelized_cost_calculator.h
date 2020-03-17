@@ -58,6 +58,7 @@ class LevelizedCostCalculator: public IExpectedProfitRateCalculator
 public:
     LevelizedCostCalculator();
     static const std::string& getXMLNameStatic();
+    void toInputXML( std::ostream& aOut, Tabs* aTabs ) const;
     void toDebugXML( const int aPeriod, std::ostream& aOut, Tabs* aTabs ) const;
 
     double calcSectorExpectedProfitRate( const std::vector<IInvestable*>& aInvestables,

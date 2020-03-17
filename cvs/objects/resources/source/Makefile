@@ -7,8 +7,15 @@
 PATHOFFSET = ../..
 include ${PATHOFFSET}/build/linux/configure.gcam
 
-SRCS	= $(wildcard *.cpp)
-OBJS	= $(SRCS:.cpp=.o)
+OBJS       = accumulated_grade.o \
+             accumulated_post_grade.o \
+             grade.o \
+             renewable_subresource.o \
+             resource.o \
+             smooth_renewable_subresource.o \
+             subresource.o \
+             unlimited_resource.o \
+             depleting_fixed_resource.o
 
 resources_dir: ${OBJS}
 

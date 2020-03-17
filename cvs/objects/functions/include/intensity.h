@@ -70,6 +70,9 @@ public:
     
     virtual const std::string& getName() const;
 
+    virtual void toInputXML( std::ostream& aOut,
+                             Tabs* aTabs ) const;
+
     virtual void toDebugXML( const int aPeriod,
                              std::ostream& aOut,
                              Tabs* aTabs ) const;

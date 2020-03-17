@@ -67,12 +67,9 @@ public:
     virtual ~SubRenewableResource();
     //! Return the XML tag name
     static const std::string& getXMLNameStatic( void );
-    virtual void completeInit( const std::string& aRegionName, const std::string& aResourceName,
-                               const IInfo* aSectorInfo );
-    virtual void cumulsupply( const std::string& aRegionName, const std::string& aResourceName,
-                              double aPrice, int aPeriod );
-    virtual void annualsupply( const std::string& aRegionName, const std::string& aResourceName,
-                               int aPeriod, const GDP* aGdp, double aPrice );
+    virtual void completeInit( const IInfo* aSectorInfo );
+    virtual void cumulsupply( double aPrice, int aPeriod );
+    virtual void annualsupply( int aPeriod, const GDP* aGdp, double aPrice, double aPrevPrice );
     virtual double getVariance() const;
     virtual double getMaxAnnualSubResource( const int aPeriod ) const;
     virtual void accept( IVisitor* aVisitor, const int aPeriod ) const;
@@ -102,5 +99,6 @@ protected:
 
     virtual const std::string& getXMLName() const;
     virtual bool XMLDerivedClassParse( const std::string& nodeName, const xercesc::DOMNode* node );
+    virtual void toXMLforDerivedClass( std::ostream& out, Tabs* tabs ) const;
 };
 #endif // _RENEWABLE_SUBRESOURCE_H_

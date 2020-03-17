@@ -51,8 +51,6 @@
 #include "containers/include/iinfo.h"
 #include "marketplace/include/marketplace.h"
 #include "util/base/include/ivisitor.h"
-#include "technologies/include/itechnology_container.h"
-#include "technologies/include/itechnology.h"
 
 using namespace std;
 using namespace xercesc;
@@ -97,14 +95,20 @@ bool SubRenewableResource::XMLDerivedClassParse( const string& nodeName, const D
     return didParse;
 }
 
+//! Write out to XML variables specific to this derived class
+void SubRenewableResource::toXMLforDerivedClass( ostream& out, Tabs* tabs ) const {
+    XMLWriteElementCheckDefault( mGdpSupplyElasticity, "gdpSupplyElast", out, tabs, 0.0 );
+    XMLWriteElementCheckDefault( mSubResourceVariance, "subResourceVariance", out, tabs, 0.0 );
+    XMLWriteVector( mMaxAnnualSubResource, "maxSubResource", out, tabs, scenario->getModeltime(), 0.0 );
+}
+
 //! Do any initializations needed for this resource
 /*! Renewable resources should have only grades with well defined cost curves. 
 \todo The extra elements in the vector should be removed. 
 Also remove any grades with zero available by resetting the parameter nograde. */
-void SubRenewableResource::completeInit( const string& aRegionName, const string& aResourceName,
-                                         const IInfo* aSectorInfo ) {
+void SubRenewableResource::completeInit( const IInfo* aSectorInfo ) {   
 
-    SubResource::completeInit( aRegionName, aResourceName, aSectorInfo );
+    SubResource::completeInit( aSectorInfo );
     
     double lastAvailable = 0;
     
@@ -136,9 +140,7 @@ void SubRenewableResource::completeInit( const string& aRegionName, const string
 *   production 
 */
 
-void SubRenewableResource::cumulsupply( const string& aRegionName, const string& aResourceName,
-                                        double aPrice, int aPeriod )
-{
+void SubRenewableResource::cumulsupply( double aPrice, int aPeriod ) {
     // Cumulative supply is not utilize for annual production.
     // Calculate cumulative production for reporting after calling annual supply for this
     // subresource.
@@ -151,13 +153,10 @@ void SubRenewableResource::cumulsupply( const string& aRegionName, const string&
 * Note that the cost curve needs to be in the form of price, and cumulative fraction available.
 * Calls calcVariance() method
 */
-void SubRenewableResource::annualsupply( const string& aRegionName, const string& aResourceName,
-                                         int aPeriod, const GDP* aGdp, double aPrice )
-{
-    ITechnology* currTech = mTechnology->getNewVintageTechnology( aPeriod );
-    currTech->calcCost( aRegionName, aResourceName, aPeriod );
+void SubRenewableResource::annualsupply( int aPeriod, const GDP* aGdp, double aPrice, double aPrevPrice  ) {
+
     double fractionAvailable = -1;
-    const double effectivePrice = aPrice + mPriceAdder[ aPeriod ] - currTech->getCost( aPeriod );
+    const double effectivePrice = aPrice + mPriceAdder[ aPeriod ];
 
     // Move up the cost curve until a point is found above the current price.
     for ( unsigned int i = 0; i < mGrade.size(); ++i ) {
@@ -202,8 +201,6 @@ void SubRenewableResource::annualsupply( const string& aRegionName, const string
 
     // now convert to absolute value of production
     mAnnualProd[ aPeriod ] = fractionAvailable * mMaxAnnualSubResource[aPeriod] * resourceSupplyIncrease;
-    
-    currTech->production( aRegionName, aResourceName, mAnnualProd[ aPeriod ], 1.0, aGdp, aPeriod );
 
     // This subresource does not utilize a cumualtive supply curve.
     // Calculate cumulative production from annunal production values.
@@ -261,7 +258,6 @@ void SubRenewableResource::accept( IVisitor* aVisitor, const int aPeriod ) const
     for( unsigned int i = 0; i < mGrade.size(); ++i ){
         mGrade[ i ]->accept( aVisitor, aPeriod );
     }
-    mTechnology->accept( aVisitor, aPeriod );
     
     aVisitor->endVisitSubRenewableResource( this, aPeriod );
 }
